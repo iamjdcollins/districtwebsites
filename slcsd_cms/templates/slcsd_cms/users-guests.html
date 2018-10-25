@@ -7,7 +7,7 @@
 {% block content %}
 <div id="list_users" class="card">
   {% verbatim %}
-  <div class="card-body">
+  <section class="card-body">
     <div v-if="loaded && records.length > 0" class="mb-3">
       <div class="input-group mb-3">
         <div class="form-group-feedback form-group-feedback-left">
@@ -65,7 +65,7 @@
     <div v-else-if="loaded" class="alert alert-warning alert-styled-left">
       <span class="font-weight-semibold">Oops:</span> There are not currently any guest accounts created. Click here to <a href="#" class="alert-link text-primary" data-toggle="modal" data-target="#add_guest">Add a Guest User</a>
     </div>
-  </div>
+  </section>
   {% endverbatim %}
 </div>
 {% endblock %}
