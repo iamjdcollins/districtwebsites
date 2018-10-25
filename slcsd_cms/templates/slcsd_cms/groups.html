@@ -3,3 +3,69 @@
 {% block page_title %}Groups{% endblock %}
 
 {% block h1 %}Groups{% endblock %}
+
+{% block content %}
+<div id="list_users" class="card">
+  {% verbatim %}
+  <section class="card-body">
+    <div v-if="loaded && records.length > 0" class="mb-3">
+      <div class="input-group mb-3">
+        <div class="form-group-feedback form-group-feedback-left">
+          <input type="text" v-model="search" class="form-control form-control-lg alpha-grey" placeholder="Search Guests">
+          <div class="form-control-feedback form-control-feedback-lg">
+            <i class="icon-search4 text-muted"></i>
+          </div>
+        </div>
+      </div>
+      <div class="table-actions mb-1">
+        <button href="#" data-toggle="modal" data-target="#add_guest" class="btn btn-light"><i class="icon-plus22 mr-2"> </i>Add Guest User</button>
+      </div>
+      <div class="table-responsive mb-3">
+        <table class="table table-striped mb-3">
+          <thead class="bg-slate-300">
+            <tr>
+              <th style="width: 1px;"><span class="sr-only">Select</span></th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Email</th>
+              <th>Join</th>
+              <th style="width: 1px;" class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="record in pagedRecords" v-bind:data-user-pk="record.pk">
+              <td class="pr-0">
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" v-bind:id="record.pk + '_select'">
+                  <label class="custom-control-label" v-bind:for="record.pk + '_select'">&nbsp;<span class="sr-only">Select {{record.email}}</span></label>
+                </div>
+              </td>
+              <td>{{ record.first_name }}</td>
+              <td>{{ record.last_name }}</td>
+              <td>{{ record.email }}</td>
+              <td>{{ record.date_joined }}</td>
+              <td class="pl-0 pr-0 text-center">
+                <button type="button" class="btn btn-link btn-icon" data-toggle="dropdown"><i class="icon-more"></i></button>
+                <div class="dropdown-menu dropdown-menu-right">
+                  <button v-on:click="deleteUser(record)" class="dropdown-item"><i class="icon-trash"></i> Delete</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="float-right d-flex mb-3">
+        <div style="" class="float-left align-items-end d-flex mr-3">Results: {{ recordRangeMin }}-{{ recordRangeMax }} of {{ numberOfRecords }}</div>
+        <ul v-if="numberOfRecords > 50" class="pagination align-self-center float-left">
+          <li class="page-item"><button v-on:click="prevPage" class="page-link">Prev</button></li>
+          <li class="page-item"><button v-on:click="nextPage" class="page-link">Next</button></li>
+        </ul>
+      </div>
+    </div>
+    <div v-else-if="loaded" class="alert alert-warning alert-styled-left">
+      <span class="font-weight-semibold">Oops:</span> There are not currently any guest accounts created. Click here to <a href="#" class="alert-link text-primary" data-toggle="modal" data-target="#add_guest">Add a Guest User</a>
+    </div>
+  </section>
+  {% endverbatim %}
+</div>
+{% endblock %}
