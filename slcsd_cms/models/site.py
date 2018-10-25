@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.core.cache import cache
 from django.db import models
 from django.http import Http404
@@ -78,6 +79,15 @@ class Site(BaseModelMixin):
         default=False,
         db_index=True,
     )
+    group = models.OneToOneField(
+        Group,
+        null=True,
+        blank=False,
+        editable=False,
+        unique=True,
+        on_delete=models.PROTECT,
+        related_name='site',
+    )
 
     objects = SiteManager()
 
@@ -93,7 +103,32 @@ class Site(BaseModelMixin):
     def get_canonical(self):
         return self.domains.get_canonical()
 
+    def create_group(self):
+        group_type = 'Publishers' if not self.management else 'Managers'
+        self.group, created = Group.objects.get_or_create(
+            name='{0}'.format(self.pk),
+            defaults={
+                'title': '{0} {1}'.format(
+                    self.title,
+                    group_type,
+                ),
+                'description': '{0} group for site: {1}'.format(
+                    group_type,
+                    self.title,
+                )
+            }
+        )
+        if not created:
+            self.group.title = '{0} {1}'.format(self.title, group_type)
+            self.description = '{0} group for site: {1}'.format(
+                group_type,
+                self.title,
+            )
+            self.group.save()
+        return self.group
+
     def save(self, *args, **kwargs):
         self.full_clean()
+        self.create_group()
         # Run the save from the inherited model
         super(self._meta.model, self).save(*args, **kwargs)
