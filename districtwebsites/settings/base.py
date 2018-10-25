@@ -18,20 +18,25 @@ from django.core.exceptions import ImproperlyConfigured
 BASE_DIR = os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))))
 
+
 # Load Secrets
-try:
-    with open(os.path.join(BASE_DIR, '.secrets.json')) as f:
-        secrets = json.loads(f.read())
-except FileNotFoundError:
-    raise ImproperlyConfigured(
-        'Secrets file not found. Please create the secrets file or correct the'
-        ' configuration.'
-    )
+def load_secrets(file=os.path.join(BASE_DIR, '.secrets.json')):
+    try:
+        with open(file) as f:
+            secrets = json.loads(f.read())
+            return secrets
+    except FileNotFoundError:
+        raise ImproperlyConfigured(
+            'Secrets file not found. Please create the secrets file or correct'
+            ' the configuration.'
+        )
+
+
+secrets = load_secrets()
+
 
 # Get a secret
-
-
-def get_secret(key, secrets=secrets):
+def get_secret(key, secrets=secrets or load_secrets()):
     try:
         val = secrets[key]
         if val == 'True':
@@ -57,6 +62,10 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
+APPEND_SLASH = True
+
+AUTH_USER_MODEL = 'slcsd_cms.User'
+
 
 # Application definition
 
@@ -66,6 +75,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'slcsd_cms',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -76,6 +87,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'slcsd_cms.middleware.CurrentSite',
 ]
 
 ROOT_URLCONF = 'districtwebsites.urls'
@@ -84,13 +96,21 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
-        'APP_DIRS': True,
+        # 'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'slcsd_cms.processors.admin_breadcrumbs',
+            ],
+            'loaders': [
+                (
+                    'django.template.loaders.cached.Loader', [
+                        'django.template.loaders.filesystem.Loader',
+                        'django.template.loaders.app_directories.Loader',
+                    ]),
             ],
         },
     },
@@ -146,3 +166,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': 'unix:/var/run/memcached/memcached.sock',
+    },
+}

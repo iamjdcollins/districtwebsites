@@ -1,0 +1,268 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>{% block page_title %}Dashboard{% endblock %} - Salt Lake City School District Website Management</title>
+	<style>
+		html{
+			visibility: hidden;
+    	overflow: hidden;
+		}
+	</style>
+</head>
+
+<body class="sidebar-xs">
+
+	<!-- Main navbar -->
+	<div class="navbar navbar-expand-md navbar-dark">
+		<div class="navbar-brand">
+			<a href="{% url 'slcsd_cms:admin:home' %}" class="d-inline-block">
+				<span class="text-title">Salt Lake City School District</span>
+			</a>
+		</div>
+
+		<div class="d-md-none">
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-mobile">
+				<i class="icon-tree5"></i>
+			</button>
+			<button class="navbar-toggler sidebar-mobile-main-toggle" type="button">
+				<i class="icon-paragraph-justify3"></i>
+			</button>
+		</div>
+
+		<div class="collapse navbar-collapse" id="navbar-mobile">
+			<ul class="navbar-nav">
+				<li class="nav-item">
+					<a href="#" class="navbar-nav-link sidebar-control sidebar-main-toggle d-none d-md-block">
+						<i class="icon-paragraph-justify3"></i>
+					</a>
+				</li>
+			</ul>
+
+			<ul class="navbar-nav ml-auto">
+				<!-- <li class="nav-item">
+					<a href="#" class="navbar-nav-link">
+						Text link
+					</a>
+				</li>
+
+				<li class="nav-item dropdown">
+					<a href="#" class="navbar-nav-link">
+						<i class="icon-bell2"></i>
+						<span class="d-md-none ml-2">Notifications</span>
+						<span class="badge badge-mark border-white ml-auto ml-md-0"></span>
+					</a>					
+				</li> -->
+
+				<li class="nav-item dropdown dropdown-user">
+					<a href="#" class="navbar-nav-link d-flex align-items-center dropdown-toggle" data-toggle="dropdown">
+						<!-- <img src="../../../../global_assets/images/image.png" class="rounded-circle mr-2" height="34" alt=""> -->
+						<span>Jordan</span>
+					</a>
+
+					<div class="dropdown-menu dropdown-menu-right">
+						<a href="#" class="dropdown-item"><i class="icon-switch2"></i> Logout</a>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<!-- /main navbar -->
+
+
+	<!-- Page content -->
+	<div class="page-content">
+
+		<!-- Main sidebar -->
+		<div class="sidebar sidebar-dark sidebar-main sidebar-expand-md">
+
+			<!-- Sidebar mobile toggler -->
+			<div class="sidebar-mobile-toggler text-center">
+				<a href="#" class="sidebar-mobile-main-toggle">
+					<i class="icon-arrow-left8"></i>
+				</a>
+				Navigation
+				<a href="#" class="sidebar-mobile-expand">
+					<i class="icon-screen-full"></i>
+					<i class="icon-screen-normal"></i>
+				</a>
+			</div>
+			<!-- /sidebar mobile toggler -->
+
+
+			<!-- Sidebar content -->
+			<div class="sidebar-content">
+
+
+				<!-- Main navigation -->
+				<div class="card card-sidebar-mobile">
+					<ul class="nav nav-sidebar" data-nav-type="accordion">
+
+						<!-- Main -->
+						<li class="nav-item-header"><div class="text-uppercase font-size-xs line-height-xs">Main Menu</div> <i class="icon-menu" title="Main Menu" data-popup="tooltip" title="" data-placement="right" data-original-title="Main Menu"></i></li>
+						<li class="nav-item">
+							<a href="/manage/dashboard/" class="nav-link {% if request.path == '/manage/dashboard/' %}active{% endif %}">
+								<i class="icon-graph"></i>
+								<span>Dashboard</span>
+							</a>
+						</li>
+						<li class="nav-item nav-item-submenu {% if '/manage/users/' in request.path %}nav-item-expanded nav-item-open{% endif %}">
+							<a href="/manage/users/" class="nav-link {% if '/manage/users/' in request.path %}active{% endif %}"><i class="icon-user"></i> <span>Users</span></a>
+
+							<ul class="nav nav-group-sub">
+								<li class="nav-item"><a href="/manage/users/employees/" class="nav-link {% if request.path == '/manage/users/employees/' %}active{% endif %}">Employees</a></li>
+								<li class="nav-item"><a href="/manage/users/non-employees/" class="nav-link {% if request.path == '/manage/users/non-employees/' %}active{% endif %}">Non-Employees</a></li>
+								<li class="nav-item"><a href="/manage/users/services/" class="nav-link {% if request.path == '/manage/users/services/' %}active{% endif %}">Service Accounts</a></li>
+								<li class="nav-item"><a href="/manage/users/guests/" class="nav-link {% if request.path == '/manage/users/guests/'%}active{% endif %}">Guests</a></li>
+							</ul>
+						</li>
+						<li class="nav-item">
+							<a href="/manage/groups/" class="nav-link {% if request.path == '/manage/groups/'%}active{% endif %}">
+								<i class="icon-users"></i>
+								<span>Groups</span>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="/manage/sites/" class="nav-link {% if request.path == '/manage/sites/'%}active{% endif %}">
+								<i class="icon-earth"></i>
+								<span>Sites</span>
+							</a>
+						</li>
+						<!-- /main -->
+
+					</ul>
+				</div>
+				<!-- /main navigation -->
+
+			</div>
+			<!-- /sidebar content -->
+			
+		</div>
+		<!-- /main sidebar -->
+
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Page header -->
+			<div class="page-header page-header-light">
+				<div class="page-header-content header-elements-md-inline">
+					<div class="page-title d-flex">
+						<!-- <i class="icon-arrow-left52 mr-2"></i> --> <span><h1>{% block h1 %}Dashboard{% endblock %}</h1></span>
+						<!-- <a href="#" class="header-elements-toggle text-default d-md-none"><i class="icon-more"></i></a> -->
+					</div>
+				</div>
+
+				<div class="breadcrumb-line breadcrumb-line-light header-elements-md-inline">
+					<div class="d-flex">
+						<div class="breadcrumb">
+							{% for path in admin_breadcrumbs %}
+							<a href="{{ path.path }}" class="breadcrumb-item {% if forloop.last %}active disabled{% endif %}">{% if path.icon %}<i class="{{ path.icon }} mr-2"></i> {% endif %}{{ path.title }}</a>
+							{% endfor %}
+						</div>
+
+						<a href="#" class="header-elements-toggle text-default d-md-none"><i class="icon-more"></i></a>
+					</div>
+
+					<div class="header-elements d-none">
+						<div class="breadcrumb justify-content-center">
+							<a href="#" class="breadcrumb-elements-item">
+								Link
+							</a>
+
+							<div class="breadcrumb-elements-item dropdown p-0">
+								<a href="#" class="breadcrumb-elements-item dropdown-toggle" data-toggle="dropdown">
+									Dropdown
+								</a>
+
+								<div class="dropdown-menu dropdown-menu-right">
+									<a href="#" class="dropdown-item">Action</a>
+									<a href="#" class="dropdown-item">Another action</a>
+									<a href="#" class="dropdown-item">One more action</a>
+									<div class="dropdown-divider"></div>
+									<a href="#" class="dropdown-item">Separate action</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /page header -->
+
+
+			<!-- Content area -->
+			<div class="content">
+				{% block content %}
+
+				{% endblock %}
+			</div>
+			<!-- /content area -->
+
+
+			<!-- Footer -->
+			<div class="navbar navbar-light justify-content-md-end justify-content-center">
+				<!-- <div class="text-center d-lg-none w-100">
+					<button type="button" class="navbar-toggler dropdown-toggle" data-toggle="collapse" data-target="#navbar-footer">
+						<i class="icon-unfold mr-2"></i>
+						Footer
+					</button>
+				</div> -->
+
+				<!-- <div class="navbar-collapse collapse" id="navbar-footer"> -->
+
+					<ul class="navbar-nav">
+						<li class="nav-item">
+							<span class="navbar-text">
+								&copy; {% now 'Y' %} <a href="https://www.slcschools.org">Salt Lake City School District</a>
+							</span>
+						</li>
+					</ul>
+				<!-- </div> -->
+			</div>
+			<!-- /footer -->
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+	{% block modals %}
+	{% endblock %}
+
+	<!-- Global stylesheets -->
+	<link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet" type="text/css">
+	<link href="{% static 'slcsd_cms/fonts/icomoon/icomoon.css' %}" rel="stylesheet" type="text/css">
+	<link href="{% static 'slcsd_cms/css/bootstrap.4.1.1.min.css' %}" rel="stylesheet" type="text/css">
+	<link href="{% static 'slcsd_cms/css/bootstrap_limitless.2.1.min.css' %}" rel="stylesheet" type="text/css">
+	<link href="{% static 'slcsd_cms/css/limitless.layout.2.1.min.css' %}" rel="stylesheet" type="text/css">
+	<link href="{% static 'slcsd_cms/css/limitless.components.2.1.min.css' %}" rel="stylesheet" type="text/css">
+	<link href="{% static 'slcsd_cms/css/limitless.colors.2.1.min.css' %}" rel="stylesheet" type="text/css">
+	<!-- /global stylesheets -->
+
+	<!-- Core JS files -->
+	<script src="{% static 'slcsd_cms/js/jquery.3.3.1.min.js' %}"></script>
+	<script src="{% static 'slcsd_cms/js/bootstrap.bundle.4.1.3.min.js' %}"></script>
+	<script src="{% static 'slcsd_cms/js/blockui.2.7.min.js' %}"></script>
+	<!-- /core JS files -->
+
+	<!-- Theme JS files -->
+	<script src="{% static 'slcsd_cms/js/limitless.app.2.1.js' %}"></script>
+	<!-- /theme JS files -->
+
+	<script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+	<script src="{% static 'slcsd_cms/js/vue.2.5.17.js' %}"></script>
+	<script src="{% static 'slcsd_cms/js/axios.0.18.0.min.js' %}"></script>
+
+	<!-- Custom SLCSD -->
+	<script src="{% static 'slcsd_cms/js/limitless.slcsd.js' %}"></script>
+	{% block vueapp %}
+	{% endblock %}
+	<link href="{% static 'slcsd_cms/css/limitless.slcsd.css' %}" rel="stylesheet" type="text/css">
+	<!-- /Custom SLCSD -->
+
+</body>
+</html>

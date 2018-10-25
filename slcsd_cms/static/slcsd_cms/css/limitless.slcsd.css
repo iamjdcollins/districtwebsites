@@ -1,0 +1,38 @@
+a.disabled,
+a.active {
+  pointer-events: none;
+}
+.navbar-top {
+    padding-top: 3.7rem;
+}
+.navbar-dark {
+    background-color: #00587b;
+}
+.page-title{
+    padding: 1rem 0;
+}
+.text-title {
+width: 100%;
+color: #ebeced;
+font-size: 16px;
+font-weight: bold;
+max-width: 200px;
+display: block;
+line-height: 16px;
+}
+.sidebar-dark,
+.sidebar-xs .sidebar-main.sidebar-dark .nav-sidebar > .nav-item-submenu > .nav-group-sub {
+    background-color: #222c30;
+}
+.sidebar-dark .nav-sidebar > .nav-item-open > .nav-link:not(.disabled),
+.sidebar-dark .nav-sidebar > .nav-item > .nav-link.active,
+.sidebar-light .card[class*="bg-"]:not(.bg-light):not(.bg-white):not(.bg-transparent) .nav-sidebar > .nav-item-open > .nav-link:not(.disabled),
+.sidebar-light .card[class*="bg-"]:not(.bg-light):not(.bg-white):not(.bg-transparent) .nav-sidebar > .nav-item > .nav-link.active {
+    background-color: #586266;
+    color: #fff;
+}
+
+html{
+    visibility: visible;
+    overflow: auto;
+}
