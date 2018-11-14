@@ -66,6 +66,10 @@ APPEND_SLASH = True
 
 AUTH_USER_MODEL = 'slcsd_cms.User'
 
+CSRF_USE_SESSIONS = True
+
+LOGIN_URL = '/manage/login/'
+
 
 # Application definition
 
