@@ -1,3 +1,10 @@
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+)
+from django.contrib.auth.views import (
+    LoginView,
+    LogoutView,
+)
 from django.urls import reverse_lazy
 from django.views.generic.base import (
     RedirectView,
@@ -5,7 +12,7 @@ from django.views.generic.base import (
 )
 
 
-class Home(RedirectView):
+class Home(LoginRequiredMixin, RedirectView):
     url = reverse_lazy('slcsd_cms:admin:dashboard')
 
     class Meta:
@@ -13,7 +20,15 @@ class Home(RedirectView):
         breadcrumb_icon = 'icon-home2'
 
 
-class Dashboard(TemplateView):
+class Login(LoginView):
+    template_name = 'slcsd_cms/login.html'
+
+
+class Logout(LogoutView):
+    pass
+
+
+class Dashboard(LoginRequiredMixin, TemplateView):
     template_name = 'slcsd_cms/base.html'
 
     class Meta:
@@ -21,7 +36,7 @@ class Dashboard(TemplateView):
         breadcrumb_icon = None
 
 
-class Employees(TemplateView):
+class Employees(LoginRequiredMixin, TemplateView):
     template_name = 'slcsd_cms/users-employees.html'
 
     class Meta:
@@ -29,7 +44,7 @@ class Employees(TemplateView):
         breadcrumb_icon = None
 
 
-class NonEmployees(TemplateView):
+class NonEmployees(LoginRequiredMixin, TemplateView):
     template_name = 'slcsd_cms/users-non-employees.html'
 
     class Meta:
@@ -37,7 +52,7 @@ class NonEmployees(TemplateView):
         breadcrumb_icon = None
 
 
-class Services(TemplateView):
+class Services(LoginRequiredMixin, TemplateView):
     template_name = 'slcsd_cms/users-services.html'
 
     class Meta:
@@ -45,7 +60,7 @@ class Services(TemplateView):
         breadcrumb_icon = None
 
 
-class Guests(TemplateView):
+class Guests(LoginRequiredMixin, TemplateView):
     template_name = 'slcsd_cms/users-guests.html'
 
     class Meta:
@@ -53,7 +68,7 @@ class Guests(TemplateView):
         breadcrumb_icon = None
 
 
-class Groups(TemplateView):
+class Groups(LoginRequiredMixin, TemplateView):
     template_name = 'slcsd_cms/groups.html'
 
     class Meta:
@@ -61,7 +76,7 @@ class Groups(TemplateView):
         breadcrumb_icon = None
 
 
-class Sites(TemplateView):
+class Sites(LoginRequiredMixin, TemplateView):
     template_name = 'slcsd_cms/sites.html'
 
     class Meta:
