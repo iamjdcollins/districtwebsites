@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from django.conf.global_settings import CACHES
 from django.db import IntegrityError
+from django.core.exceptions import ValidationError
 from django.test import TestCase, RequestFactory, override_settings
 from django.utils import timezone
 
@@ -167,9 +168,12 @@ class UserTestCase(TestCase):
         with self.assertRaises(ValueError):
             User.objects.create_user(username=None)
 
-    def test_create_user_with_username(self):
+    def test_create_user_with_required_fields(self):
         user = User.objects.create_user(
-            username='shouldcreate@slcschools.org'
+            username='shouldcreate@slcschools.org',
+            email='shouldcreate@slcschools.org',
+            first_name='Should',
+            last_name='Create',
         )
         self.assertIsInstance(user, User)
 
@@ -199,14 +203,18 @@ class UserTestCase(TestCase):
         user = User.objects.create_superuser(
             username='supershouldcreate@slcschools.org',
             email='supershouldcreate@slcschools.org',
-            password='Abc123'
+            password='Abc123',
+            first_name='Super',
+            last_name='ShouldCreate',
         )
         self.assertIsInstance(user, User)
 
     def test_create_user_existing(self):
-        with self.assertRaises(IntegrityError):
+        with self.assertRaises(ValidationError):
             User.objects.create_user(
-                username='webmaster@slcschools.org'
+                username='webmaster@slcschools.org',
+                first_name='Webmaster',
+                last_name='Account',
             )
 
 
