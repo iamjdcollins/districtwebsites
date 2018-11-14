@@ -36,14 +36,23 @@ class DevelopmentTestCase(TestCase):
     def test_correct_environment(self):
         self.assertEqual(development.ENVIRONMENT, 'DEVELOPMENT')
 
+    def test_debug_mode(self):
+        self.assertEqual(development.DEBUG, True)
+
 
 class TestingTestCase(TestCase):
 
     def test_correct_environment(self):
         self.assertEqual(testing.ENVIRONMENT, 'TESTING')
 
+    def test_debug_mode(self):
+        self.assertEqual(testing.DEBUG, False)
+
 
 class ProductionTestCase(TestCase):
 
     def test_correct_environment(self):
         self.assertEqual(production.ENVIRONMENT, 'PRODUCTION')
+
+    def test_debug_mode(self):
+        self.assertEqual(production.DEBUG, False)
