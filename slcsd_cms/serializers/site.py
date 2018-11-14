@@ -13,6 +13,10 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
         view_name="slcsd_cms:api:domain-detail",
         # queryset=Domain.objects.all(),
     )
+    update_date = serializers.DateTimeField(
+        required=False,
+        format='%b. %d, %Y, %I:%M %p'
+    )
 
     class Meta:
         model = Site
@@ -23,4 +27,5 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
             'description',
             'management',
             'domains',
+            'update_date',
         )
