@@ -120,7 +120,7 @@ class Site(BaseModelMixin):
         )
         if not created:
             self.group.title = '{0} {1}'.format(self.title, group_type)
-            self.description = '{0} group for site: {1}'.format(
+            self.group.description = '{0} group for site: {1}'.format(
                 group_type,
                 self.title,
             )
