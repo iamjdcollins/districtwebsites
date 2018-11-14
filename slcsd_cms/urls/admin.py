@@ -14,6 +14,16 @@ urlpatterns = [
         name='home',
     ),
     path(
+        'login/',
+        admin_views.Login.as_view(),
+        name='login',
+    ),
+    path(
+        'logout/',
+        admin_views.Logout.as_view(),
+        name='logout',
+    ),
+    path(
         'dashboard/',
         admin_views.Dashboard.as_view(),
         name='dashboard',
