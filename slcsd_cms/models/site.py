@@ -5,6 +5,7 @@ from django.db import models
 from django.http import Http404
 from django.http.request import split_domain_port
 from django.shortcuts import redirect
+from django.utils.functional import cached_property
 
 from .abstract import BaseModelMixin
 from .domain import Domain
@@ -56,7 +57,7 @@ class SiteManager(models.Manager):
         ):
             SLCSD_CMS_SITES[domain.domain] = {
                 'site': domain.site,
-                'canonical': domain.site.domains.get_canonical(),
+                'canonical': domain.site.get_canonical,
             }
         cache.set('SLCSD_CMS_SITES', SLCSD_CMS_SITES, None)
         return SLCSD_CMS_SITES
@@ -100,8 +101,21 @@ class Site(BaseModelMixin):
     def __str__(self):
         return self.title
 
+    @property
     def get_canonical(self):
         return self.domains.get_canonical()
+
+    @property
+    def development_canonical(self):
+        return self.domains.get_canonical(environment='DEVELOPMENT')
+
+    @property
+    def testing_canonical(self):
+        return self.domains.get_canonical(environment='TESTING')
+
+    @property
+    def production_canonical(self):
+        return self.domains.get_canonical(environment='PRODUCTION')
 
     def create_group(self):
         group_type = 'Publishers' if not self.management else 'Managers'

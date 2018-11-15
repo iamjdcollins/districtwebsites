@@ -424,7 +424,7 @@ class DomainTestCase(TestCase):
         management = create_management_website(webmaster)
         self.assertEquals(
             'websites-dev.slcschools.org',
-            str(management.get_canonical())
+            str(management.get_canonical)
         )
 
     def test_redirect_request(self):
@@ -464,12 +464,12 @@ class DomainTestCase(TestCase):
         )
 
     def test_unpublish_canonical(self):
-        canonical = self.management.domains.get_canonical()
+        canonical = self.management.get_canonical
         canonical.published = False
         canonical.save()
         self.assertEquals(
             'notcanonical.slcschools.org',
-            self.management.domains.get_canonical().domain
+            self.management.get_canonical.domain
         )
 
     def test_no_canonical(self):
