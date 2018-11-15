@@ -5,7 +5,6 @@ from django.db import models
 from django.http import Http404
 from django.http.request import split_domain_port
 from django.shortcuts import redirect
-from django.utils.functional import cached_property
 
 from .abstract import BaseModelMixin
 from .domain import Domain
