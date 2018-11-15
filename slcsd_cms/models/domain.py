@@ -13,17 +13,17 @@ class DomainManager(models.Manager):
     def get_active(self):
         return self.get_queryset().filter(delete_date__isnull=True)
 
-    def get_canonical(self):
+    def get_canonical(self, environment=settings.ENVIRONMENT):
         try:
             canonical = self.get_published().get(
                 site=self.instance,
-                environment=settings.ENVIRONMENT,
+                environment=environment,
                 canonical=True,
             )
         except Domain.DoesNotExist:
             domains = self.get_published().filter(
                 site=self.instance,
-                environment=settings.ENVIRONMENT
+                environment=environment
             )
             if len(domains) > 0:
                 canonical = domains[0]
