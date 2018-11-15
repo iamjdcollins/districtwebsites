@@ -5,6 +5,7 @@ from django.urls import path, include
 from ..views import api
 
 router = routers.DefaultRouter(trailing_slash=True)
+router.APIRootView = api.APIRootView
 router.register(r'users', api.UserViewSet, 'user')
 router.register(r'sites', api.SiteViewSet, 'site')
 router.register(r'domains', api.DomainViewSet, 'domain')

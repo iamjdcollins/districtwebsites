@@ -1,6 +1,11 @@
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+)
+
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.routers import APIRootView as APIRootViewBase
 
 from django.shortcuts import get_object_or_404
 
@@ -16,7 +21,11 @@ from ..serializers import (
 )
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class APIRootView(LoginRequiredMixin, APIRootViewBase):
+    pass
+
+
+class UserViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
     serializer_class = UserSerializer
 
@@ -28,7 +37,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class SiteViewSet(viewsets.ModelViewSet):
+class SiteViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
     queryset = Site.objects.get_published()
     serializer_class = SiteSerializer
@@ -47,7 +56,7 @@ class SiteViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class DomainViewSet(viewsets.ModelViewSet):
+class DomainViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
     queryset = Domain.objects.get_published()
     serializer_class = DomainSerializer
