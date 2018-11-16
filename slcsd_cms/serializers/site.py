@@ -8,30 +8,6 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="slcsd_cms:api:site-detail"
     )
-    canonical = serializers.HyperlinkedRelatedField(
-        view_name="slcsd_cms:api:domain-detail",
-        read_only=True,
-        lookup_field="uuid",
-        lookup_url_kwarg="pk",
-    )
-    development_canonical = serializers.HyperlinkedRelatedField(
-        view_name="slcsd_cms:api:domain-detail",
-        read_only=True,
-        lookup_field="uuid",
-        lookup_url_kwarg="pk",
-    )
-    testing_canonical = serializers.HyperlinkedRelatedField(
-        view_name="slcsd_cms:api:domain-detail",
-        read_only=True,
-        lookup_field="uuid",
-        lookup_url_kwarg="pk",
-    )
-    production_canonical = serializers.HyperlinkedRelatedField(
-        view_name="slcsd_cms:api:domain-detail",
-        read_only=True,
-        lookup_field="uuid",
-        lookup_url_kwarg="pk",
-    )
     domains = serializers.HyperlinkedRelatedField(
         many=True,
         view_name="slcsd_cms:api:domain-detail",
@@ -53,10 +29,6 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
             'title',
             'description',
             'management',
-            'canonical',
-            'development_canonical',
-            'testing_canonical',
-            'production_canonical',
             'domains',
             'update_date',
         )
