@@ -426,7 +426,7 @@ class DomainTestCase(TestCase):
         canonical = management.domains.get_canonical().domain
         self.assertEquals(
             canonical,
-            str(management.get_canonical)
+            str(management.canonical)
         )
 
     def test_site_development_canonical(self):
@@ -490,12 +490,12 @@ class DomainTestCase(TestCase):
         )
 
     def test_unpublish_canonical(self):
-        canonical = self.management.get_canonical
+        canonical = self.management.canonical
         canonical.published = False
         canonical.save()
         self.assertEquals(
             'notcanonical.slcschools.org',
-            self.management.get_canonical.domain
+            self.management.canonical.domain
         )
 
     def test_no_canonical(self):
