@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from django.conf import settings
 from django.conf.global_settings import CACHES
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
@@ -422,9 +423,34 @@ class DomainTestCase(TestCase):
     def test_site_get_canonical(self):
         webmaster = create_webmaster()
         management = create_management_website(webmaster)
+        canonical = management.domains.get_canonical().domain
+        self.assertEquals(
+            canonical,
+            str(management.get_canonical)
+        )
+
+    def test_site_development_canonical(self):
+        webmaster = create_webmaster()
+        management = create_management_website(webmaster)
         self.assertEquals(
             'websites-dev.slcschools.org',
-            str(management.get_canonical)
+            str(management.development_canonical)
+        )
+
+    def test_site_testing_canonical(self):
+        webmaster = create_webmaster()
+        management = create_management_website(webmaster)
+        self.assertEquals(
+            'websites-test.slcschools.org',
+            str(management.testing_canonical)
+        )
+
+    def test_site_production_canonical(self):
+        webmaster = create_webmaster()
+        management = create_management_website(webmaster)
+        self.assertEquals(
+            'websites.slcschools.org',
+            str(management.production_canonical)
         )
 
     def test_redirect_request(self):
