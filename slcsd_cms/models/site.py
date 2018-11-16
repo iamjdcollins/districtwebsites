@@ -56,7 +56,7 @@ class SiteManager(models.Manager):
         ):
             SLCSD_CMS_SITES[domain.domain] = {
                 'site': domain.site,
-                'canonical': domain.site.get_canonical,
+                'canonical': domain.site.canonical,
             }
         cache.set('SLCSD_CMS_SITES', SLCSD_CMS_SITES, None)
         return SLCSD_CMS_SITES
@@ -101,7 +101,7 @@ class Site(BaseModelMixin):
         return self.title
 
     @property
-    def get_canonical(self):
+    def canonical(self):
         return self.domains.get_canonical()
 
     @property
