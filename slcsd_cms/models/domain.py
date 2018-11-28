@@ -80,18 +80,15 @@ class Domain(BaseModelMixin):
     def __str__(self):
         return self.domain
 
-    def __init__(self, *args, **kwargs):
-        super(self._meta.model, self).__init__(*args, **kwargs)
-        # Track this field for changes on save.
-        self._original_canonical = self.canonical
-
     def save(self, *args, **kwargs):
+        # Run full clean to make sure that all inputs are valid. Without this the save method does not run all
+        # validations. I would rather validations run multiple times than not at all.
         self.full_clean()
+        # A domain that is not published or has been deleted cannot also be canonical.
         if not self.published or self.delete_date:
             self.canonical = False
-        # Set all domains with the same site and environment to not canonical
-        # if the current site has been set as canonical but was not before
-        # save.
+        # Set all domains with the same site and environment to not canonical if the current domain has been set as
+        # canonical but was not before save.
         if self.canonical:
             self._meta.model.objects.filter(
                 site=self.site,
@@ -101,5 +98,10 @@ class Domain(BaseModelMixin):
                 pk=self.pk).update(canonical=True)
         # Run the save from the inherited model
         super(self._meta.model, self).save(*args, **kwargs)
+        # Sync up canonical attributes.
+        if self.canonical:
+            self.site.set_canonical(self.environment, self)
+        else:
+            self.site.unset_canonical(self.environment, self)
         # Rebuild the site > domain cache.
         self.site._meta.model.objects.rebuild_cache()
