@@ -88,6 +88,33 @@ class Site(BaseModelMixin):
         on_delete=models.PROTECT,
         related_name='site',
     )
+    development_canonical = models.OneToOneField(
+        Domain,
+        null=True,
+        blank=True,
+        editable=False,
+        unique=True,
+        on_delete=models.PROTECT,
+        related_name='+',
+    )
+    testing_canonical = models.OneToOneField(
+        Domain,
+        null=True,
+        blank=True,
+        editable=False,
+        unique=True,
+        on_delete=models.PROTECT,
+        related_name='+',
+    )
+    production_canonical = models.OneToOneField(
+        Domain,
+        null=True,
+        blank=True,
+        editable=False,
+        unique=True,
+        on_delete=models.PROTECT,
+        related_name='+',
+    )
 
     objects = SiteManager()
 
@@ -103,18 +130,6 @@ class Site(BaseModelMixin):
     @property
     def canonical(self):
         return self.domains.get_canonical()
-
-    @property
-    def development_canonical(self):
-        return self.domains.get_canonical(environment='DEVELOPMENT')
-
-    @property
-    def testing_canonical(self):
-        return self.domains.get_canonical(environment='TESTING')
-
-    @property
-    def production_canonical(self):
-        return self.domains.get_canonical(environment='PRODUCTION')
 
     def create_group(self):
         group_type = 'Publishers' if not self.management else 'Managers'
