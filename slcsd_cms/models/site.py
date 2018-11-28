@@ -129,30 +129,73 @@ class Site(BaseModelMixin):
 
     @property
     def canonical(self):
-        return self.domains.get_canonical()
+        if settings.ENVIRONMENT == 'DEVELOPMENT':
+            return self.development_canonical
+        elif settings.ENVIRONMENT == 'TESTING':
+            return self.testing_canonical
+        elif settings.ENVIRONMENT == 'PRODUCTION':
+            return self.production_canonical
+        return None
 
+    # This method should set the passed in domain as the canonical domain for the given environment. If the domain is
+    # already set the method should not make or save any changes.
+    def set_canonical(self, environment, domain):
+        changed = False
+        if environment == 'DEVELOPMENT' and self.development_canonical != domain:
+            self.development_canonical = domain
+            changed = True
+        elif environment == 'TESTING' and self.testing_canonical != domain:
+            self.testing_canonical = domain
+            changed = True
+        elif environment == 'PRODUCTION' and self.production_canonical != domain:
+            self.production_canonical = domain
+            changed = True
+        if changed:
+            self.save()
+
+    # This method should remove the passed in domain as the canonical domain for the given environment. If the domain is
+    # not currently set as canonical domain the method should not make or save any changes.
+    def unset_canonical(self, environment, domain):
+        changed = False
+        if environment == 'DEVELOPMENT' and self.development_canonical == domain:
+            self.development_canonical = None
+            changed = True
+        elif environment == 'TESTING' and self.testing_canonical == domain:
+            self.testing_canonical = None
+            changed = True
+        elif environment == 'PRODUCTION' and self.production_canonical == domain:
+            self.production_canonical = None
+            changed = True
+        if changed:
+            self.save()
+
+    # This method should create a group that represents the managers or publishers associated with the given site.
+    # If the group was already created we need to check if the current title and description need to be updated and
+    # write the changes if needed.
     def create_group(self):
         group_type = 'Publishers' if not self.management else 'Managers'
+        group_title = '{0} {1}'.format(self.title, group_type)
+        group_description = '{0} group for site: {1}'.format(group_type, self.title)
         self.group, created = Group.objects.get_or_create(
             name='{0}'.format(self.pk),
             defaults={
-                'title': '{0} {1}'.format(
-                    self.title,
-                    group_type,
-                ),
-                'description': '{0} group for site: {1}'.format(
-                    group_type,
-                    self.title,
-                )
+                'title': group_title,
+                'description': group_description
             }
         )
         if not created:
-            self.group.title = '{0} {1}'.format(self.title, group_type)
-            self.group.description = '{0} group for site: {1}'.format(
-                group_type,
-                self.title,
-            )
-            self.group.save()
+            original_group = {
+                'title': self.group.title,
+                'description': self.group.description,
+            }
+            new_group = {
+                'title': group_title,
+                'description': group_description,
+            }
+            if original_group != new_group:
+                self.group.title = group_title
+                self.group.description = group_description
+                self.group.save()
         return self.group
 
     def save(self, *args, **kwargs):
