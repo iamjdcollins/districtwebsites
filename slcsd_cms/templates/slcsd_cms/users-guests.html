@@ -104,9 +104,9 @@
               'X-CSRFTOKEN': '{{csrf_token}}'
             }
           }
-        ).then(
-          this.records.pop(user)
-        )
+        ).then(function(response) {
+            this.records.splice(this.records.indexOf(user), 1)
+        })
       }
     },
     mounted: function(){
