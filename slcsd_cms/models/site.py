@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.cache import cache
+from django.core.exceptions import PermissionDenied
 from django.db import models
 from django.http import Http404
 from django.http.request import split_domain_port
@@ -203,3 +204,8 @@ class Site(BaseModelMixin):
         self.create_group()
         # Run the save from the inherited model
         super(self._meta.model, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.management:
+            raise PermissionDenied('You cannot delete the management website. First create a new management website.')
+        super(self._meta.model, self).delete(*args, **kwargs)
