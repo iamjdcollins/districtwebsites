@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import (
     LoginRequiredMixin,
 )
+from django.db.models import Prefetch
 
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -39,7 +40,7 @@ class UserViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
 class SiteViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
-    queryset = Site.objects.get_published()
+    queryset = Site.objects.get_published().prefetch_related('domains').order_by('-management', 'title')
     serializer_class = SiteSerializer
 
     @action(
