@@ -17,6 +17,9 @@
           </div>
         </div>
       </div>
+      <div class="table-actions mb-1">
+        <button v-on:click="clearSiteForm" data-toggle="modal" data-target="#add_site" class="btn btn-light"><i class="icon-plus22 mr-2"> </i>Add Site</button>
+      </div>
       <div class="table-responsive mb-3">
         <table class="table table-striped mb-3">
           <thead class="bg-slate-300">
@@ -49,9 +52,9 @@
           </tbody>
         </table>
       </div>
-      <div class="float-right d-flex mb-3">
-        <div style="" class="float-left align-items-end d-flex mr-3">Results: {{ recordRangeMin }}-{{ recordRangeMax }} of {{ numberOfRecords }}</div>
-        <ul v-if="numberOfRecords > 50" class="pagination align-self-center float-left">
+      <div class="d-flex mb-3">
+        <div class="mt-auto ml-auto mr-3">Results: {{ recordRangeMin }}-{{ recordRangeMax }} of {{ numberOfRecords }}</div>
+        <ul v-if="numberOfRecords > 50" class="pagination align-self-center">
           <li class="page-item"><button v-on:click="prevPage" class="page-link">Prev</button></li>
           <li class="page-item"><button v-on:click="nextPage" class="page-link">Next</button></li>
         </ul>
@@ -61,13 +64,39 @@
       <span class="font-weight-semibold">Oops:</span> There are not currently any sites created. Click here to <a href="#" class="alert-link text-primary" data-toggle="modal" data-target="#add_site">Add a Site</a>
     </div>
   </section>
+  <div id="add_site" class="modal fade" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-grey">
+          <h2 class="modal-title">Add Site</h2>
+          <button v-on:click="clearSiteForm" type="button" class="close" data-dismiss="modal">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="">Title</label>
+            <input v-model="siteForm.title" type="email" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="">Description</label>
+            <textarea v-model="siteForm.description" type="" class="form-control"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button v-on:click="clearSiteForm" type="button" class="btn btn-link" data-dismiss="modal" ref="closemodal">Close</button>
+          <button v-on:click="addSite" v-bind:disabled="!siteFormValid" type="button" class="btn bg-primary">Add Site</button>
+        </div>
+      </div>
+    </div>
+  </div>
   {% endverbatim %}
 </div>
 {% endblock %}
 
 {% block vueapp %}
 <script>
-  list_users = new Vue({
+  list_sites = new Vue({
     el: '#list_sites',
     data: {
       loaded: false,
@@ -75,11 +104,16 @@
       search: '',
       currentPage: 1,
       pageSize: 50,
+      siteForm:{
+          title: '',
+          description: '',
+          management: false,
+      },
     },
     watch: {
-      search: function(){
-        this.currentPage = 1
-      }
+      search:function(){
+        this.currentPage = 1;
+      },
     },
     methods: {
       nextPage:function() {
@@ -90,7 +124,7 @@
         if(this.currentPage > 1) this.currentPage--;
         return false;
       },
-      deleteSite: function(site){
+      deleteSite:function(site){
         axios.delete(
           site.url,
           {
@@ -99,15 +133,38 @@
               'X-CSRFTOKEN': '{{csrf_token}}'
             }
           }
+        ).then(function(response){
+            this.records.splice(this.records.indexOf(site), 1);
+        }.bind(this))
+      },
+      clearSiteForm: function(){
+        this.siteForm.title='';
+        this.siteForm.description='';
+        this.siteForm.management=false;
+      },
+      addSite: function(){
+        data = JSON.stringify(this.siteForm)
+        axios.post(
+          'http://websites-dev.slcschools.org/api/v1/sites/',
+          data,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFTOKEN': '{{csrf_token}}'
+            },
+          }
         ).then(
-          this.records.pop(site)
+          function(response){
+            list_sites.records.push(response.data);
+            this.$refs.closemodal.click();
+          }.bind(this)
         )
       }
     },
     mounted: function(){
       window.openPageLoad();
       axios
-        .get('http://websites-dev.slcschools.org/api/v1/sites/?format=json')
+        .get('{% url "slcsd_cms:api:site-list" %}' + '?format=json')
         .then(
           function(response){
             this.records = response.data;
@@ -136,47 +193,20 @@
       recordRangeMax: function(){
         return Math.min(this.numberOfRecords, (this.currentPage * this.pageSize))
       },
+      siteFormValid: function(){
+        if( ! this.siteForm.title ){
+          return false;
+        }
+        if( ! this.siteForm.description ){
+          return false;
+        }
+        return true;
+      },
     }
   })
 </script>
 {% endblock %}
+
 {% block modals %}
-<div id="add_guest" class="modal fade" tabindex="-1" style="display: none;" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-grey">
-        <h2 class="modal-title">Add Guest User</h6>
-        <button v-on:click="clearForm" type="button" class="close" data-dismiss="modal">×</button>
-      </div>
 
-      <div class="modal-body">
-        <div class="form-group">
-          <label class="">Username</label>
-          <input v-model="user_fields.username" type="email" disabled class="form-control">
-        </div>
-        <div class="form-group">
-          <label class="">Email</label>
-          <input v-model="user_fields.email" type="email" class="form-control">
-        </div>
-        <div class="form-group">
-          <label class="">First Name</label>
-          <input v-model="user_fields.first_name" type="text" class="form-control">
-        </div>
-        <div class="form-group">
-          <label class="">Last Name</label>
-          <input v-model="user_fields.last_name" type="text" class="form-control">
-        </div>
-        <div class="form-group d-none">
-          <label class="">User Type</label>
-          <input v-model="user_fields.user_type" type="hidden" class="form-control" value='GST'>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button v-on:click="clearForm" type="button" class="btn btn-link" data-dismiss="modal" ref="closemodal">Close</button>
-        <button v-on:click="addUser" v-bind:disabled="!isValid" type="button" class="btn bg-primary">Add User</button>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}
