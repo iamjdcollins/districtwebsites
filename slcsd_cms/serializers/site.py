@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 from ..models import Site, Domain
 
@@ -16,6 +17,7 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
         read_only=True,
         # queryset=Domain.objects.all(),
     )
+    canonical = serializers.SerializerMethodField()
     development_canonical = serializers.HyperlinkedRelatedField(
         many=False,
         view_name="slcsd_cms:api:domain-detail",
@@ -50,9 +52,14 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
             'title',
             'description',
             'management',
+            'canonical',
             'development_canonical',
             'testing_canonical',
             'production_canonical',
             'domains',
             'update_date',
         )
+
+    def get_canonical(self, obj):
+        request = self.context['request'] if 'request' in self.context else None
+        return reverse('slcsd_cms:api:domain-detail', args=[obj.canonical_id], request=request)
