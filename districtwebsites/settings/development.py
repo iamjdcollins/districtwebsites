@@ -1,6 +1,12 @@
+from copy import copy
+
 from .base import *
 
 DEBUG = True
+
+# Copy Installed Apps and Middleware to allow removal of unwanted list items.
+INSTALLED_APPS = copy(INSTALLED_APPS)
+MIDDLEWARE = copy(MIDDLEWARE)
 
 ENVIRONMENT = 'DEVELOPMENT'
 
