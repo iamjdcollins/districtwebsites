@@ -62,4 +62,5 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_canonical(self, obj):
         request = self.context['request'] if 'request' in self.context else None
-        return reverse('slcsd_cms:api:domain-detail', args=[obj.canonical_id], request=request)
+        url = reverse('slcsd_cms:api:domain-detail', args=[obj.canonical_id], request=request)
+        return url if obj.canonical_id else None
