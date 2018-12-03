@@ -12,4 +12,3 @@ pyasn1==0.4.4
 django-reversion==3.0.1
 # Django Silk
 django-silk==3.0.1
-
