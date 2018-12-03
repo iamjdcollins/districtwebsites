@@ -138,6 +138,16 @@ class Site(BaseModelMixin):
             return self.production_canonical
         return None
 
+    @property
+    def canonical_id(self):
+        if settings.ENVIRONMENT == 'DEVELOPMENT':
+            return self.development_canonical_id
+        elif settings.ENVIRONMENT == 'TESTING':
+            return self.testing_canonical_id
+        elif settings.ENVIRONMENT == 'PRODUCTION':
+            return self.production_canonical_id
+        return None
+
     # This method should set the passed in domain as the canonical domain for the given environment. If the domain is
     # already set the method should not make or save any changes.
     def set_canonical(self, environment, domain):
