@@ -25,5 +25,9 @@ if settings.DEBUG and settings.ENVIRONMENT == 'DEVELOPMENT':
     ]
 
 urlpatterns += [
+    path('silk/', include('silk.urls', namespace='silk'))
+]
+
+urlpatterns += [
     path('', include('slcsd_cms.urls')),
 ]
