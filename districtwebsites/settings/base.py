@@ -182,3 +182,21 @@ CACHES = {
         'LOCATION': 'unix:/var/run/memcached/memcached.sock',
     },
 }
+
+
+# Used by SILKY_PERMISSIONS
+def silk_permissions(user):
+    return True if user.is_superuser else False
+
+
+SILKY_AUTHENTICATION = True  # To access silk the user must be logged in.
+SILKY_AUTHORISATION = True  # To access silk use must pass SILKY_PERMISSIONS.
+SILKY_PERMISSIONS = silk_permissions  # Only allow superuser to access silk.
+SILKY_PYTHON_PROFILER = True  # The profiler should be ran?
+SILKY_PYTHON_PROFILER_BINARY = False  # Also store profile data in binary file?
+SILKY_META = True  # Should keep track of added processing time from silk
+SILKY_MAX_REQUEST_BODY_SIZE = 0  # If request body is less than this value save the request body.
+SILKY_MAX_RESPONSE_BODY_SIZE = 0  # if the response body is less than this value save the response body.
+SILKY_INTERCEPT_PERCENT = 100  # What percentage of requests should be processed by silk?
+SILKY_MAX_RECORDED_REQUESTS = 10**4  # How many records are kept by silk?
+SILKY_MAX_RECORDED_REQUESTS_CHECK_PERCENT = 10  # What percentage of records cleaned by garbage collection per run.
