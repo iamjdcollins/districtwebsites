@@ -220,3 +220,6 @@ class Site(BaseModelMixin):
         if self.management:
             raise PermissionDenied('You cannot delete the management website. First create a new management website.')
         super(self._meta.model, self).delete(*args, **kwargs)
+        # After deleting the site you should delete the related group
+        if self.group:
+            self.group.delete()
