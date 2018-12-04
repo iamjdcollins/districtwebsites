@@ -42,8 +42,14 @@ class UserViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
 class SiteViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
-    queryset = Site.objects.get_published().prefetch_related('domains').order_by('-management', 'title')
     serializer_class = SiteSerializer
+
+    def get_queryset(self):
+        queryset = Site.objects.get_published()
+        queryset = queryset.select_related('group')
+        queryset = queryset.prefetch_related('domains')
+        queryset = queryset.order_by('-management', 'title')
+        return queryset
 
     @action(
         methods=['get'],
