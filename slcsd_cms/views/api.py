@@ -73,5 +73,10 @@ class DomainViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 class GroupViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
     lookup_field = 'uuid'
-    queryset = Group.objects.select_related('site').order_by('-site__management', 'title')
     serializer_class = GroupSerializer
+
+    def get_queryset(self):
+        queryset = Group.objects.all()
+        queryset = queryset.select_related('site')
+        queryset = queryset.order_by('-site__management', 'title')
+        return queryset

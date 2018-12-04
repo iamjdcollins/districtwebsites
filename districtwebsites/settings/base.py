@@ -148,16 +148,20 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'django.contrib.auth.password_validation'
+                '.UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.password_validation'
+                '.MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation'
+                '.CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation'
+                '.NumericPasswordValidator',
     },
 ]
 
@@ -184,19 +188,35 @@ CACHES = {
 }
 
 
-# Used by SILKY_PERMISSIONS
 def silk_permissions(user):
+    """
+    Should return true of the user accessing silk is a superuser.
+
+    :param user:
+    :return:
+    """
     return True if user.is_superuser else False
 
 
-SILKY_AUTHENTICATION = True  # To access silk the user must be logged in.
-SILKY_AUTHORISATION = True  # To access silk use must pass SILKY_PERMISSIONS.
-SILKY_PERMISSIONS = silk_permissions  # Only allow superuser to access silk.
-SILKY_PYTHON_PROFILER = True  # The profiler should be ran?
-SILKY_PYTHON_PROFILER_BINARY = False  # Also store profile data in binary file?
-SILKY_META = True  # Should keep track of added processing time from silk
-SILKY_MAX_REQUEST_BODY_SIZE = 0  # If request body is less than this value save the request body.
-SILKY_MAX_RESPONSE_BODY_SIZE = 0  # if the response body is less than this value save the response body.
-SILKY_INTERCEPT_PERCENT = 100  # What percentage of requests should be processed by silk?
-SILKY_MAX_RECORDED_REQUESTS = 10**4  # How many records are kept by silk?
-SILKY_MAX_RECORDED_REQUESTS_CHECK_PERCENT = 10  # What percentage of records cleaned by garbage collection per run.
+# To access silk the user must be logged in.
+SILKY_AUTHENTICATION = True
+# To access silk use must pass SILKY_PERMISSIONS.
+SILKY_AUTHORISATION = True
+# Only allow superuser to access silk.
+SILKY_PERMISSIONS = silk_permissions
+# The profiler should be ran?
+SILKY_PYTHON_PROFILER = True
+# Also store profile data in binary file?
+SILKY_PYTHON_PROFILER_BINARY = False
+# Should keep track of added processing time from silk
+SILKY_META = True
+# If request body is less than this value save the request body.
+SILKY_MAX_REQUEST_BODY_SIZE = 0
+# If the response body is less than this value save the response body.
+SILKY_MAX_RESPONSE_BODY_SIZE = 0
+# What percentage of requests should be processed by silk?
+SILKY_INTERCEPT_PERCENT = 100
+# How many records are kept by silk?
+SILKY_MAX_RECORDED_REQUESTS = 10**4
+# What percentage of records cleaned by garbage collection per run.
+SILKY_MAX_RECORDED_REQUESTS_CHECK_PERCENT = 10

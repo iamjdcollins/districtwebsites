@@ -81,14 +81,17 @@ class Domain(BaseModelMixin):
         return self.domain
 
     def save(self, *args, **kwargs):
-        # Run full clean to make sure that all inputs are valid. Without this the save method does not run all
-        # validations. I would rather validations run multiple times than not at all.
+        # Run full clean to make sure that all inputs are valid. Without
+        # this the save method does not run all validations. I would rather
+        # validations run multiple times than not at all.
         self.full_clean()
-        # A domain that is not published or has been deleted cannot also be canonical.
+        # A domain that is not published or has been deleted cannot also be
+        # canonical.
         if not self.published or self.delete_date:
             self.canonical = False
-        # Set all domains with the same site and environment to not canonical if the current domain has been set as
-        # canonical but was not before save.
+        # Set all domains with the same site and environment to not
+        # canonical if the current domain has been set as canonical but was
+        # not before save.
         if self.canonical:
             self._meta.model.objects.filter(
                 site=self.site,
