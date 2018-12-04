@@ -39,6 +39,13 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
         lookup_url_kwarg="pk",
         read_only=True,
     )
+    group = serializers.HyperlinkedRelatedField(
+        many=False,
+        view_name="slcsd_cms:api:group-detail",
+        lookup_field="uuid",
+        lookup_url_kwarg="uuid",
+        read_only=True,
+    )
     update_date = serializers.DateTimeField(
         required=False,
         format='%b. %d, %Y, %I:%M %p'
@@ -57,6 +64,7 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
             'testing_canonical',
             'production_canonical',
             'domains',
+            'group',
             'update_date',
         )
 
