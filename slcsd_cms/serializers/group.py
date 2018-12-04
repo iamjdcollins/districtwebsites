@@ -10,6 +10,13 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
         lookup_field='uuid',
         lookup_url_kwarg='uuid',
     )
+    site = serializers.HyperlinkedRelatedField(
+        many=False,
+        view_name="slcsd_cms:api:site-detail",
+        lookup_field="pk",
+        lookup_url_kwarg="pk",
+        read_only=True,
+    )
 
     class Meta:
         model = Group
@@ -18,4 +25,5 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
             'uuid',
             'title',
             'description',
+            'site',
         ]
