@@ -9,6 +9,7 @@ router.APIRootView = api.APIRootView
 router.register(r'users', api.UserViewSet, 'user')
 router.register(r'sites', api.SiteViewSet, 'site')
 router.register(r'domains', api.DomainViewSet, 'domain')
+router.register(r'groups', api.GroupViewSet, 'group')
 
 app_name = 'api'
 

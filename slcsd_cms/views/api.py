@@ -14,11 +14,13 @@ from ..models import (
     User,
     Site,
     Domain,
+    Group,
 )
 from ..serializers import (
     UserSerializer,
     SiteSerializer,
     DomainSerializer,
+    GroupSerializer,
 )
 
 
@@ -61,3 +63,9 @@ class DomainViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
     queryset = Domain.objects.get_published()
     serializer_class = DomainSerializer
+
+class GroupViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
+
+    lookup_field = 'uuid'
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
