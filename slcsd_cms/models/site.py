@@ -96,7 +96,7 @@ class Site(BaseModelMixin):
         blank=True,
         editable=False,
         unique=True,
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         related_name='+',
     )
     testing_canonical = models.OneToOneField(
@@ -105,7 +105,7 @@ class Site(BaseModelMixin):
         blank=True,
         editable=False,
         unique=True,
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         related_name='+',
     )
     production_canonical = models.OneToOneField(
@@ -114,7 +114,7 @@ class Site(BaseModelMixin):
         blank=True,
         editable=False,
         unique=True,
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         related_name='+',
     )
 
