@@ -15,12 +15,28 @@ class SiteManager(models.Manager):
     use_in_migrations = True
 
     def get_published(self):
+        """
+        Returns sites that have not be deleted and are published.
+
+        :return:
+        """
         return self.get_active().filter(published=True)
 
     def get_active(self):
+        """
+        Returns sites that have not be deleted.
+        
+        :return:
+        """
         return self.get_queryset().filter(delete_date__isnull=True)
 
     def _get_site_by_request(self, request):
+        """
+        Returns the current site from the SLCSD_CMS_SITES cache.
+
+        If the cache is empty it should be rebuilt. If the domain is not found in the cache a 404 should be raised.
+        If the domain is found but not canonical a redirect to the canonical domain should occur.
+        """
         SLCSD_CMS_SITES = cache.get('SLCSD_CMS_SITES')
         if not SLCSD_CMS_SITES:
             SLCSD_CMS_SITES = self.rebuild_cache()
@@ -43,28 +59,43 @@ class SiteManager(models.Manager):
 
     def get_current(self, request=None):
         """
-        Return the current Site based on the SITE_ID in the project's settings.
-        If SITE_ID isn't defined, return the site with domain matching
-        request.get_host(). The ``Site`` object is cached the first time it's
-        retrieved from the database.
+        Return the current Site based by looking up the site in the SLCSD_CMS_SITES cache.
         """
         return self._get_site_by_request(request)
 
     def rebuild_cache(self):
+        """
+        Builds a cache of domains and their respective site and canonical domain.
+
+        This allows for quickly determining what site a request is coming to and if it is accessing the canonical
+        domain.
+        :return:
+        """
         SLCSD_CMS_SITES = {}
-        for domain in Domain.objects.filter(
-            environment=settings.ENVIRONMENT
-        ):
-            SLCSD_CMS_SITES[domain.domain] = {
-                'site': domain.site,
-                'canonical': domain.site.canonical,
-            }
+        for domain in Domain.objects.all():
+            if domain.environment == 'DEVELOPMENT':
+                SLCSD_CMS_SITES[domain.domain] = {
+                    'site': domain.site,
+                    'canonical': domain.site.development_canonical,
+                }
+            if domain.environment == 'TESTING':
+                SLCSD_CMS_SITES[domain.domain] = {
+                    'site': domain.site,
+                    'canonical': domain.site.testing_canonical,
+                }
+            if domain.environment == 'PRODUCTION':
+                SLCSD_CMS_SITES[domain.domain] = {
+                    'site': domain.site,
+                    'canonical': domain.site.production_canonical,
+                }
         cache.set('SLCSD_CMS_SITES', SLCSD_CMS_SITES, None)
         return SLCSD_CMS_SITES
 
 
 class Site(BaseModelMixin):
-
+    """
+    Represents a single websites.
+    """
     title = models.CharField(
         null=False,
         blank=False,
@@ -131,6 +162,12 @@ class Site(BaseModelMixin):
 
     @property
     def canonical(self):
+        """
+        Returns the current canonical domain for the site.
+
+        Based on the current running environment return the canonical domain for the site. If there is not a canonical
+        domain for the current environment and site return None.
+        """
         if settings.ENVIRONMENT == 'DEVELOPMENT':
             return self.development_canonical
         elif settings.ENVIRONMENT == 'TESTING':
@@ -141,6 +178,12 @@ class Site(BaseModelMixin):
 
     @property
     def canonical_id(self):
+        """
+        Returns the current canonical domains primary key.
+
+        Based on the current running environment return the canonical domains primary key for the site. If there is not
+        a canonical domain for the current environment and site return None.
+        """
         if settings.ENVIRONMENT == 'DEVELOPMENT':
             return self.development_canonical_id
         elif settings.ENVIRONMENT == 'TESTING':
@@ -149,9 +192,16 @@ class Site(BaseModelMixin):
             return self.production_canonical_id
         return None
 
-    # This method should set the passed in domain as the canonical domain for the given environment. If the domain is
-    # already set the method should not make or save any changes.
     def set_canonical(self, environment, domain):
+        """
+        Sets the domain for a given environment as canonical on the site.
+
+        This method should set the passed in domain as the canonical domain for the given environment. If the domain is
+        already set the method should not make or save any changes.
+
+        :param environment:
+        :param domain:
+        """
         changed = False
         if environment == 'DEVELOPMENT' and self.development_canonical != domain:
             self.development_canonical = domain
@@ -165,9 +215,16 @@ class Site(BaseModelMixin):
         if changed:
             self.save()
 
-    # This method should remove the passed in domain as the canonical domain for the given environment. If the domain is
-    # not currently set as canonical domain the method should not make or save any changes.
     def unset_canonical(self, environment, domain):
+        """
+        Removes the domain for a given environment as the canonical of the site.
+
+        This method should remove the passed in domain as the canonical domain for the given environment. If the domain
+        is not currently set as the canonical domain the method should not make or save any changes.
+
+        :param environment:
+        :param domain:
+        """
         changed = False
         if environment == 'DEVELOPMENT' and self.development_canonical == domain:
             self.development_canonical = None
@@ -181,10 +238,16 @@ class Site(BaseModelMixin):
         if changed:
             self.save()
 
-    # This method should create a group that represents the managers or publishers associated with the given site.
-    # If the group was already created we need to check if the current title and description need to be updated and
-    # write the changes if needed.
     def create_group(self):
+        """
+        Creates a publisher or manager group that is associated with the site.
+
+        This method should create a group that represents the managers or publishers associated with the given site.
+        If the group was already created we need to check if the current title and description need to be updated and
+        write the changes only if needed.
+
+        :return:
+        """
         group_type = 'Publishers' if not self.management else 'Managers'
         group_title = '{0} {1}'.format(self.title, group_type)
         group_description = '{0} group for site: {1}'.format(group_type, self.title)
