@@ -87,6 +87,7 @@ class Site(BaseModelMixin):
         editable=False,
         unique=True,
         on_delete=models.PROTECT,
+        to_field='uuid',
         related_name='site',
     )
     development_canonical = models.OneToOneField(
