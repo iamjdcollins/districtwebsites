@@ -46,7 +46,12 @@ class SiteViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Site.objects.get_published()
-        queryset = queryset.select_related('group')
+        queryset = queryset.select_related(
+            'group',
+            'development_canonical',
+            'testing_canonical',
+            'production_canonical',
+        )
         queryset = queryset.prefetch_related('domains')
         queryset = queryset.order_by('-management', 'title')
         return queryset
@@ -67,8 +72,15 @@ class SiteViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
 class DomainViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
-    queryset = Domain.objects.get_published().select_related('site')
     serializer_class = DomainSerializer
+
+    def get_queryset(self):
+        queryset = Domain.objects.get_published()
+        queryset = queryset.select_related(
+            'site'
+        )
+        return queryset
+
 
 class GroupViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
