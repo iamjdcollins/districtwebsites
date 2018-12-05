@@ -423,7 +423,7 @@ class DomainTestCase(TestCase):
     def test_site_get_canonical(self):
         webmaster = create_webmaster()
         management = create_management_website(webmaster)
-        canonical = management.domains.get_canonical().domain
+        canonical = management.canonical.domain
         self.assertEquals(
             canonical,
             str(management.canonical)
