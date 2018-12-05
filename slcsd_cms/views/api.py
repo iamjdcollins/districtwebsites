@@ -34,6 +34,11 @@ class UserViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = User.objects.get_published()
+        queryset = queryset.select_related(
+            'create_user',
+            'update_user',
+            'delete_user',
+        )
         user_type = self.request.query_params.get('type', None)
         if user_type:
             queryset = queryset.filter(user_type=user_type)
@@ -51,6 +56,9 @@ class SiteViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
             'development_canonical',
             'testing_canonical',
             'production_canonical',
+            'create_user',
+            'update_user',
+            'delete_user',
         )
         queryset = queryset.prefetch_related('domains')
         queryset = queryset.order_by('-management', 'title')
@@ -78,6 +86,9 @@ class DomainViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
         queryset = Domain.objects.get_published()
         queryset = queryset.select_related(
             'site'
+            'create_user',
+            'update_user',
+            'delete_user',
         )
         return queryset
 
@@ -89,6 +100,8 @@ class GroupViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Group.objects.all()
-        queryset = queryset.select_related('site')
+        queryset = queryset.select_related(
+            'site',
+        )
         queryset = queryset.order_by('-site__management', 'title')
         return queryset
