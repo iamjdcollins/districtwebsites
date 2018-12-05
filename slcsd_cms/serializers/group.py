@@ -1,6 +1,42 @@
 from rest_framework import serializers
 
-from ..models import Group
+from ..models import (
+    Group,
+    Site,
+    User,
+)
+
+
+class NestedUserSerializer(serializers.HyperlinkedModelSerializer):
+
+    url = serializers.HyperlinkedIdentityField(
+        view_name="slcsd_cms:api:user-detail'"
+    )
+
+    class Meta:
+        model = User
+        fields = (
+            'url',
+            'pk',
+            'username',
+        )
+
+
+class NestedSiteSerializer(serializers.HyperlinkedModelSerializer):
+
+    url = serializers.HyperlinkedIdentityField(
+        view_name="slcsd_cms:api:domain-detail"
+    )
+
+    class Meta:
+        model = Site
+        fields = (
+            'url',
+            'pk',
+            'title',
+            'description',
+            'management',
+        )
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
@@ -10,11 +46,8 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
         lookup_field='uuid',
         lookup_url_kwarg='uuid',
     )
-    site = serializers.HyperlinkedRelatedField(
+    site = NestedSiteSerializer(
         many=False,
-        view_name="slcsd_cms:api:site-detail",
-        lookup_field="pk",
-        lookup_url_kwarg="pk",
         read_only=True,
     )
 

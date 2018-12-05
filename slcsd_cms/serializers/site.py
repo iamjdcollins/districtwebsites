@@ -3,9 +3,25 @@ from rest_framework.reverse import reverse
 
 from ..models import (
     Site,
+    User,
     Domain,
     Group
 )
+
+
+class NestedUserSerializer(serializers.HyperlinkedModelSerializer):
+
+    url = serializers.HyperlinkedIdentityField(
+        view_name="slcsd_cms:api:user-detail'"
+    )
+
+    class Meta:
+        model = User
+        fields = (
+            'url',
+            'pk',
+            'username',
+        )
 
 
 class NestedDomainSerializer(serializers.HyperlinkedModelSerializer):
@@ -19,6 +35,9 @@ class NestedDomainSerializer(serializers.HyperlinkedModelSerializer):
         fields = (
             'url',
             'pk',
+            'domain',
+            'environment',
+            'canonical',
         )
 
 
@@ -34,7 +53,9 @@ class NestedGroupSerializer(serializers.HyperlinkedModelSerializer):
         model = Group
         fields = (
             'url',
-            'pk',
+            'uuid',
+            'title',
+            'description',
         )
 
 
@@ -47,7 +68,10 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
         many=True,
         read_only=True
     )
-    canonical = serializers.SerializerMethodField()
+    canonical = NestedDomainSerializer(
+        many=False,
+        read_only=True
+    )
     development_canonical = NestedDomainSerializer(
         many=False,
         read_only=True,
@@ -61,6 +85,18 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
         read_only=True,
     )
     group = NestedGroupSerializer(
+        many=False,
+        read_only=True,
+    )
+    create_user = NestedUserSerializer(
+        many=False,
+        read_only=True,
+    )
+    update_user = NestedUserSerializer(
+        many=False,
+        read_only=True,
+    )
+    delete_user = NestedUserSerializer(
         many=False,
         read_only=True,
     )
@@ -83,7 +119,13 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
             'production_canonical',
             'domains',
             'group',
+            'published',
+            'create_date',
+            'create_user',
             'update_date',
+            'update_user',
+            'delete_date',
+            'delete_user',
         )
 
     def get_canonical(self, obj):
