@@ -16,7 +16,7 @@ class SiteManager(models.Manager):
 
     def get_published(self):
         """
-        Returns sites that have not be deleted and are published.
+        Returns sites that have not been deleted and are published.
 
         :return:
         """
@@ -163,39 +163,58 @@ class Site(BaseModelMixin):
     def __str__(self):
         return self.title
 
+    def get_canonical(self, environment=settings.ENVIRONMENT):
+        """
+        Returns the current canonical domain for the site and requested
+        environment.
+
+        Based on the requested environment return the canonical domain for
+        the site. If there is not a canonical domain for the requested
+        environment and site return None.
+        """
+        if environment == 'DEVELOPMENT':
+            return self.development_canonical
+        elif environment == 'TESTING':
+            return self.testing_canonical
+        elif environment == 'PRODUCTION':
+            return self.production_canonical
+        return None
+
+    def get_canonical_id(self, environment=settings.ENVIRONMENT):
+        """
+        Returns the current canonical domains primary key for the requested
+        environment.
+
+        Based on the requested environment return the canonical domains
+        primary key for the site. If there is not a canonical domain for the
+        requested environment and site return None.
+        """
+        if environment == 'DEVELOPMENT':
+            return self.development_canonical_id
+        elif environment == 'TESTING':
+            return self.testing_canonical_id
+        elif environment == 'PRODUCTION':
+            return self.production_canonical_id
+        return None
+
     @property
     def canonical(self):
         """
-        Returns the current canonical domain for the site.
+        Returns the canonical domain for the site and running environment.
 
-        Based on the current running environment return the canonical domain
-        for the site. If there is not a canonical domain for the current
-        environment and site return None.
+        :return:
         """
-        if settings.ENVIRONMENT == 'DEVELOPMENT':
-            return self.development_canonical
-        elif settings.ENVIRONMENT == 'TESTING':
-            return self.testing_canonical
-        elif settings.ENVIRONMENT == 'PRODUCTION':
-            return self.production_canonical
-        return None
+        return self.get_canonical()
 
     @property
     def canonical_id(self):
         """
-        Returns the current canonical domains primary key.
+        Returns the canonical domain's primary key for the site and running
+        environment.
 
-        Based on the current running environment return the canonical domains
-        primary key for the site. If there is not a canonical domain for the
-        current environment and site return None.
+        :return:
         """
-        if settings.ENVIRONMENT == 'DEVELOPMENT':
-            return self.development_canonical_id
-        elif settings.ENVIRONMENT == 'TESTING':
-            return self.testing_canonical_id
-        elif settings.ENVIRONMENT == 'PRODUCTION':
-            return self.production_canonical_id
-        return None
+        return self.get_canonical_id()
 
     def set_canonical(self, environment, domain):
         """
