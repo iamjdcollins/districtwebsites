@@ -3,14 +3,29 @@ from rest_framework import serializers
 from ..models import Domain, Site
 
 
+class NestedSiteSerializer(serializers.HyperlinkedModelSerializer):
+
+    url = serializers.HyperlinkedIdentityField(
+        view_name="slcsd_cms:api:domain-detail"
+    )
+
+    class Meta:
+        model = Site
+        fields = (
+            'url',
+            'pk',
+        )
+
+
+
 class DomainSerializer(serializers.HyperlinkedModelSerializer):
 
     url = serializers.HyperlinkedIdentityField(
         view_name="slcsd_cms:api:domain-detail"
     )
-    site = serializers.HyperlinkedRelatedField(
-        view_name="slcsd_cms:api:site-detail",
-        queryset=Site.objects.all(),
+    site = NestedSiteSerializer(
+        many=False,
+        read_only=True,
     )
 
     class Meta:

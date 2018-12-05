@@ -1,7 +1,41 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from ..models import Site, Domain
+from ..models import (
+    Site,
+    Domain,
+    Group
+)
+
+
+class NestedDomainSerializer(serializers.HyperlinkedModelSerializer):
+
+    url = serializers.HyperlinkedIdentityField(
+        view_name="slcsd_cms:api:domain-detail",
+    )
+
+    class Meta:
+        model = Domain
+        fields = (
+            'url',
+            'pk',
+        )
+
+
+class NestedGroupSerializer(serializers.HyperlinkedModelSerializer):
+
+    url = serializers.HyperlinkedIdentityField(
+        view_name="slcsd_cms:api:group-detail",
+        lookup_field='uuid',
+        lookup_url_kwarg='uuid',
+    )
+
+    class Meta:
+        model = Group
+        fields = (
+            'url',
+            'pk',
+        )
 
 
 class SiteSerializer(serializers.HyperlinkedModelSerializer):
@@ -9,41 +43,25 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="slcsd_cms:api:site-detail"
     )
-    domains = serializers.HyperlinkedRelatedField(
+    domains = NestedDomainSerializer(
         many=True,
-        view_name="slcsd_cms:api:domain-detail",
-        lookup_field="uuid",
-        lookup_url_kwarg="pk",
-        read_only=True,
-        # queryset=Domain.objects.all(),
+        read_only=True
     )
     canonical = serializers.SerializerMethodField()
-    development_canonical = serializers.HyperlinkedRelatedField(
+    development_canonical = NestedDomainSerializer(
         many=False,
-        view_name="slcsd_cms:api:domain-detail",
-        lookup_field="pk",
-        lookup_url_kwarg="pk",
         read_only=True,
     )
-    testing_canonical = serializers.HyperlinkedRelatedField(
+    testing_canonical = NestedDomainSerializer(
         many=False,
-        view_name="slcsd_cms:api:domain-detail",
-        lookup_field="pk",
-        lookup_url_kwarg="pk",
         read_only=True,
     )
-    production_canonical = serializers.HyperlinkedRelatedField(
+    production_canonical = NestedDomainSerializer(
         many=False,
-        view_name="slcsd_cms:api:domain-detail",
-        lookup_field="pk",
-        lookup_url_kwarg="pk",
         read_only=True,
     )
-    group = serializers.HyperlinkedRelatedField(
+    group = NestedGroupSerializer(
         many=False,
-        view_name="slcsd_cms:api:group-detail",
-        lookup_field="uuid",
-        lookup_url_kwarg="uuid",
         read_only=True,
     )
     update_date = serializers.DateTimeField(
