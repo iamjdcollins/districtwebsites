@@ -8,34 +8,29 @@ class DomainManager(models.Manager):
     use_in_migrations = True
 
     def get_published(self):
+        """
+        Returns domains that have not been deleted and are published.
+
+        :return:
+        """
         return self.get_active().filter(published=True)
 
     def get_active(self):
+        """
+        Returns domains that have not been deleted.
+
+        :return:
+        """
         return self.get_queryset().filter(delete_date__isnull=True)
 
-    def get_canonical(self, environment=settings.ENVIRONMENT):
-        try:
-            canonical = self.get_published().get(
-                site=self.instance,
-                environment=environment,
-                canonical=True,
-            )
-        except Domain.DoesNotExist:
-            domains = self.get_published().filter(
-                site=self.instance,
-                environment=environment
-            )
-            if len(domains) > 0:
-                canonical = domains[0]
-                canonical._meta.model.objects.filter(
-                    pk=canonical.pk).update(canonical=True)
-            else:
-                canonical = None
-        return canonical
+    def delete(self):
+        pass
 
 
 class Domain(BaseModelMixin):
-
+    """
+    Represents a single domain.
+    """
     ENVIRONMENTS = (
         ('DEVELOPMENT', 'Development'),
         ('TESTING', 'Testing'),
