@@ -58,4 +58,19 @@ urlpatterns = [
         admin_views.Sites.as_view(),
         name='sites',
     ),
+    path(
+        'sites/<uuid:site>/',
+        admin_views.Site.as_view(),
+        name='site',
+    ),
+    path(
+        'sites/<uuid:site>/dashboard/',
+        admin_views.SiteDashboard.as_view(),
+        name='site-dashboard',
+    ),
+    path(
+        'sites/<uuid:site>/domains/',
+        admin_views.SiteDomains.as_view(),
+        name='site-domains',
+    )
 ]

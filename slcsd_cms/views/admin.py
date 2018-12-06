@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.contrib.auth.mixins import (
     LoginRequiredMixin,
 )
@@ -5,7 +6,8 @@ from django.contrib.auth.views import (
     LoginView,
     LogoutView,
 )
-from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404
+from django.urls import reverse, reverse_lazy
 from django.views.generic.base import (
     RedirectView,
     TemplateView,
@@ -13,6 +15,7 @@ from django.views.generic.base import (
 
 
 class Home(LoginRequiredMixin, RedirectView):
+
     url = reverse_lazy('slcsd_cms:admin:dashboard')
 
     class Meta:
@@ -81,4 +84,46 @@ class Sites(LoginRequiredMixin, TemplateView):
 
     class Meta:
         breadcrumb_title = 'Sites'
+        breadcrumb_icon = None
+
+
+class Site(LoginRequiredMixin, RedirectView):
+
+    def get_redirect_url(self, *args, **kwargs):
+        url = reverse(
+            'slcsd_cms:admin:site-dashboard',
+            args=[self.kwargs['site']]
+        )
+        return url
+
+
+class SiteDashboard(LoginRequiredMixin, TemplateView):
+    template_name = 'slcsd_cms/site-dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['site'] = get_object_or_404(
+            apps.get_model('slcsd_cms', 'Site'),
+            pk=context['site'],
+        )
+        return context
+
+    class Meta:
+        breadcrumb_title = 'Dashboard'
+        breadcrumb_icon = None
+
+
+class SiteDomains(LoginRequiredMixin, TemplateView):
+    template_name = 'slcsd_cms/site-domains.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['site'] = get_object_or_404(
+            apps.get_model('slcsd_cms', 'Site'),
+            pk=context['site'],
+        )
+        return context
+
+    class Meta:
+        breadcrumb_title = 'Domains'
         breadcrumb_icon = None
