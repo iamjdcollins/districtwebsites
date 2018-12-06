@@ -24,7 +24,7 @@ def admin_breadcrumbs(request):
             try:
                 title = has_path.func.view_class.Meta.breadcrumb_title
             except AttributeError:
-                title = has_path.url_name or path.split('/')[-2]
+                title = path.split('/')[-2]
             try:
                 icon = has_path.func.view_class.Meta.breadcrumb_icon
             except AttributeError:
