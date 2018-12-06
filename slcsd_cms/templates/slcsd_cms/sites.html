@@ -39,7 +39,7 @@
                   <label class="custom-control-label" v-bind:for="record.pk + '_select'">&nbsp;<span class="sr-only">Select {{record.email}}</span></label>
                 </div>
               </td>
-              <td>{{ record.title }}</td>
+              <td><a v-bind:href="record.admin_url">{{ record.title }}</a></td>
               <td>{{ record.description }}</td>
               <td>{{ record.update_date }}</td>
               <td class="pl-0 pr-0 text-center">
