@@ -1,3 +1,5 @@
+from django.urls import reverse as django_reverse
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -64,6 +66,7 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="slcsd_cms:api:site-detail"
     )
+    admin_url = serializers.SerializerMethodField()
     domains = NestedDomainSerializer(
         many=True,
         read_only=True
@@ -109,6 +112,7 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
         model = Site
         fields = (
             'url',
+            'admin_url',
             'pk',
             'title',
             'description',
@@ -137,3 +141,13 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
             request=request
         )
         return url if obj.canonical_id else None
+
+    def get_admin_url(self, obj):
+        request = self.context['request'] if 'request' in self.context else \
+            None
+        url = django_reverse(
+            'slcsd_cms:admin:site',
+            args=[obj.pk]
+        )
+        url = '{0}://{1}{2}'.format(request.scheme, request.get_host(), url)
+        return url if obj.pk else None
