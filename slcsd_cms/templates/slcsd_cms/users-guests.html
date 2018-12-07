@@ -2,7 +2,7 @@
 
 {% block page_title %}Guests{% endblock %}
 
-{% block h1 %}Guests{% endblock %}
+{% block h1 %}<i class="icon-user"></i> Guests{% endblock %}
 
 {% block content %}
 <div id="list_users" class="card">
@@ -29,7 +29,7 @@
               <th>Last Name</th>
               <th>Email</th>
               <th>Join</th>
-              <th style="width: 1px;" class="text-center">Action</th>
+              <th style="width: 1px;" class="text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -106,7 +106,7 @@
           }
         ).then(function(response) {
             this.records.splice(this.records.indexOf(user), 1)
-        })
+        }.bind(this))
       }
     },
     mounted: function(){
