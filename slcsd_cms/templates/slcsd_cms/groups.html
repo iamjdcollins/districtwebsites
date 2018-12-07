@@ -24,14 +24,23 @@
         <table class="table table-striped mb-3">
           <thead class="bg-slate-300">
             <tr>
+              <th style="width: 1px;"></th>
               <th>Name</th>
               <th>Description</th>
+              <th style="width: 1px;" class="text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="record in pagedRecords" v-bind:data-user-pk="record.pk">
+              <td style="width: 1px;"><i class="icon-users"></i></td>
               <td>{{ record.title }}</td>
               <td>{{ record.description }}</td>
+              <td class="pl-0 pr-0 text-center">
+                <button type="button" class="btn btn-link btn-icon" data-toggle="dropdown"><i class="icon-more"></i></button>
+                <div class="dropdown-menu dropdown-menu-right">
+                  <button disabled class="dropdown-item">No Actions</button>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>

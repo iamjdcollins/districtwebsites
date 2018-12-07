@@ -24,7 +24,7 @@
         <table class="table table-striped mb-3">
           <thead class="bg-slate-300">
             <tr>
-              <th style="width: 1px;"><span class="sr-only">Select</span></th>
+              <th style="width: 1px;"></th>
               <th>First Name</th>
               <th>Last Name</th>
               <th>Email</th>
@@ -34,12 +34,7 @@
           </thead>
           <tbody>
             <tr v-for="record in pagedRecords" v-bind:data-user-pk="record.pk">
-              <td class="pr-0">
-                <div class="custom-control custom-checkbox">
-                  <input type="checkbox" class="custom-control-input" v-bind:id="record.pk + '_select'">
-                  <label class="custom-control-label" v-bind:for="record.pk + '_select'">&nbsp;<span class="sr-only">Select {{record.email}}</span></label>
-                </div>
-              </td>
+              <td style="width: 1px;"><i class="icon-user"></i></td>
               <td>{{ record.first_name }}</td>
               <td>{{ record.last_name }}</td>
               <td>{{ record.email }}</td>
