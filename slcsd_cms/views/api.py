@@ -17,9 +17,13 @@ from ..models import (
     Group,
 )
 from ..serializers import (
+    ListUserSerializer,
     UserSerializer,
+    ListSiteSerializer,
     SiteSerializer,
+    ListDomainSerializer,
     DomainSerializer,
+    ListGroupSerializer,
     GroupSerializer,
 )
 
@@ -30,7 +34,11 @@ class APIRootView(LoginRequiredMixin, APIRootViewBase):
 
 class UserViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
-    serializer_class = UserSerializer
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return ListUserSerializer
+        else:
+            return UserSerializer
 
     def get_queryset(self):
         queryset = User.objects.get_published()
@@ -47,7 +55,11 @@ class UserViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
 class SiteViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
-    serializer_class = SiteSerializer
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return ListSiteSerializer
+        else:
+            return SiteSerializer
 
     def get_queryset(self):
         queryset = Site.objects.get_published()
@@ -80,12 +92,16 @@ class SiteViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
 class DomainViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
-    serializer_class = DomainSerializer
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return ListDomainSerializer
+        else:
+            return DomainSerializer
 
     def get_queryset(self):
         queryset = Domain.objects.get_published()
         queryset = queryset.select_related(
-            'site'
+            'site',
             'create_user',
             'update_user',
             'delete_user',
@@ -96,7 +112,12 @@ class DomainViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 class GroupViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
     lookup_field = 'uuid'
-    serializer_class = GroupSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return ListGroupSerializer
+        else:
+            return GroupSerializer
 
     def get_queryset(self):
         queryset = Group.objects.all()
