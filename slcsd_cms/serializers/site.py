@@ -61,12 +61,38 @@ class NestedGroupSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 
-class SiteSerializer(serializers.HyperlinkedModelSerializer):
+class ListSiteSerializer(serializers.HyperlinkedModelSerializer):
 
     url = serializers.HyperlinkedIdentityField(
         view_name="slcsd_cms:api:site-detail"
     )
     admin_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Site
+        fields = (
+            'url',
+            'admin_url',
+            'pk',
+            'title',
+            'description',
+            'management',
+            'published',
+        )
+
+    def get_admin_url(self, obj):
+        request = self.context['request'] if 'request' in self.context else \
+            None
+        url = django_reverse(
+            'slcsd_cms:admin:site',
+            args=[obj.pk]
+        )
+        url = '{0}://{1}{2}'.format(request.scheme, request.get_host(), url)
+        return url if obj.pk else None
+
+
+class SiteSerializer(ListSiteSerializer):
+
     domains = NestedDomainSerializer(
         many=True,
         read_only=True
@@ -110,7 +136,7 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Site
-        fields = (
+        fields = [
             'url',
             'admin_url',
             'pk',
@@ -130,7 +156,7 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
             'update_user',
             'delete_date',
             'delete_user',
-        )
+        ]
 
     def get_canonical(self, obj):
         request = self.context['request'] if 'request' in self.context else \
@@ -141,13 +167,3 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
             request=request
         )
         return url if obj.canonical_id else None
-
-    def get_admin_url(self, obj):
-        request = self.context['request'] if 'request' in self.context else \
-            None
-        url = django_reverse(
-            'slcsd_cms:admin:site',
-            args=[obj.pk]
-        )
-        url = '{0}://{1}{2}'.format(request.scheme, request.get_host(), url)
-        return url if obj.pk else None

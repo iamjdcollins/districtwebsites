@@ -18,7 +18,7 @@ class NestedUserSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class ListUserSerializer(serializers.HyperlinkedModelSerializer):
 
     url = serializers.HyperlinkedIdentityField(
         view_name="slcsd_cms:api:user-detail"
@@ -27,6 +27,21 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         required=False,
         format='%b. %d, %Y, %I:%M %p'
     )
+
+    class Meta:
+        model = User
+        fields = [
+            'url',
+            'pk',
+            'username',
+            'first_name',
+            'last_name',
+            'date_joined',
+        ]
+
+
+class UserSerializer(ListUserSerializer):
+
     create_user = NestedUserSerializer(
         many=False,
         read_only=True,
@@ -46,7 +61,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = User
-        fields = (
+        fields = [
             'url',
             'pk',
             'sync_uuid',
@@ -65,4 +80,4 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             'update_user',
             'delete_date',
             'delete_user',
-        )
+        ]

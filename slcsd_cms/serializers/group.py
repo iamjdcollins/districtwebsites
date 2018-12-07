@@ -39,13 +39,26 @@ class NestedSiteSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 
-class GroupSerializer(serializers.HyperlinkedModelSerializer):
+class ListGroupSerializer(serializers.HyperlinkedModelSerializer):
 
     url = serializers.HyperlinkedIdentityField(
         view_name="slcsd_cms:api:group-detail",
         lookup_field='uuid',
         lookup_url_kwarg='uuid',
     )
+
+    class Meta:
+        model = Group
+        fields = [
+            'url',
+            'uuid',
+            'title',
+            'description',
+        ]
+
+
+class GroupSerializer(ListGroupSerializer):
+
     site = NestedSiteSerializer(
         many=False,
         read_only=True,

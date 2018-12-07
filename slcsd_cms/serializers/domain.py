@@ -40,12 +40,26 @@ class NestedSiteSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 
-
-class DomainSerializer(serializers.HyperlinkedModelSerializer):
+class ListDomainSerializer(serializers.HyperlinkedModelSerializer):
 
     url = serializers.HyperlinkedIdentityField(
         view_name="slcsd_cms:api:domain-detail"
     )
+
+    class Meta:
+        model = Domain
+        fields = [
+            'url',
+            'pk',
+            'domain',
+            'environment',
+            'canonical',
+            'published',
+        ]
+
+
+class DomainSerializer(ListDomainSerializer):
+
     site = NestedSiteSerializer(
         many=False,
         read_only=True,
@@ -65,7 +79,7 @@ class DomainSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Domain
-        fields = (
+        fields = [
             'url',
             'pk',
             'domain',
@@ -79,4 +93,4 @@ class DomainSerializer(serializers.HyperlinkedModelSerializer):
             'update_user',
             'delete_date',
             'delete_user',
-        )
+        ]
