@@ -187,6 +187,12 @@ CACHES = {
     },
 }
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS':
+        'slcsd_cms.pagination.CMSPageNumberPagination',
+    'PAGE_SIZE': 10
+}
+
 
 def silk_permissions(user):
     """
