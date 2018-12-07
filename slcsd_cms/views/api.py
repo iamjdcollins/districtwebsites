@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import (
 )
 from django.db.models import Prefetch
 
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView as APIRootViewBase
@@ -33,6 +33,9 @@ class APIRootView(LoginRequiredMixin, APIRootViewBase):
 
 
 class UserViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
+
+    filter_backends = (filters.SearchFilter, )
+    search_fields = ('first_name', 'last_name', 'username', )
 
     def get_serializer_class(self):
         if self.action == 'list':
