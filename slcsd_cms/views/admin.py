@@ -6,6 +6,7 @@ from django.contrib.auth.views import (
     LoginView,
     LogoutView,
 )
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views.generic.base import (
@@ -32,7 +33,7 @@ class Logout(LogoutView):
 
 
 class Dashboard(LoginRequiredMixin, TemplateView):
-    template_name = 'slcsd_cms/base.html'
+    template_name = 'slcsd_cms/dashboard.html'
 
     class Meta:
         breadcrumb_title = 'Dashboard'
@@ -119,7 +120,13 @@ class SiteDomains(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['site'] = get_object_or_404(
-            apps.get_model('slcsd_cms', 'Site'),
+            apps.get_model('slcsd_cms', 'Site').objects
+            .get_published()
+            .prefetch_related(Prefetch(
+                'domains',
+                queryset=apps.get_model('slcsd_cms', 'Domain').objects
+                .get_published()
+            )),
             pk=context['site'],
         )
         return context
