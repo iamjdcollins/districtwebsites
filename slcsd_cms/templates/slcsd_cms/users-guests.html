@@ -5,7 +5,7 @@
 {% block h1 %}<i class="icon-user"></i> Guests{% endblock %}
 
 {% block content %}
-<div id="list_users" class="card">
+<div id="app" class="card">
   {% verbatim %}
   <section class="card-body">
     <div v-if="loaded && records.length > 0" class="mb-3">
@@ -25,19 +25,19 @@
           <thead class="bg-slate-300">
             <tr>
               <th style="width: 1px;"></th>
+              <th>Username</th>
               <th>First Name</th>
               <th>Last Name</th>
-              <th>Email</th>
               <th>Join</th>
               <th style="width: 1px;" class="text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="record in pagedRecords" v-bind:data-user-pk="record.pk">
+            <tr v-for="record in records" v-bind:data-user-pk="record.pk">
               <td style="width: 1px;"><i class="icon-user"></i></td>
+              <td>{{ record.username }}</td>
               <td>{{ record.first_name }}</td>
               <td>{{ record.last_name }}</td>
-              <td>{{ record.email }}</td>
               <td>{{ record.date_joined }}</td>
               <td class="pl-0 pr-0 text-center">
                 <button type="button" class="btn btn-link btn-icon" data-toggle="dropdown"><i class="icon-more"></i></button>
@@ -50,10 +50,10 @@
         </table>
       </div>
       <div class="d-flex mb-3">
-        <div class="mt-auto ml-auto mr-3">Results: {{ recordRangeMin }}-{{ recordRangeMax }} of {{ numberOfRecords }}</div>
-        <ul v-if="numberOfRecords > 50" class="pagination align-self-center">
-          <li class="page-item"><button v-on:click="prevPage" class="page-link">Prev</button></li>
-          <li class="page-item"><button v-on:click="nextPage" class="page-link">Next</button></li>
+        <div class="mt-auto ml-auto mr-3">Results: {{ first_record }}-{{ last_record }} of {{ total_records }}</div>
+        <ul v-if="total_records > 50" class="pagination align-self-center">
+          <li class="page-item"><button v-on:click="prevPage" class="page-link" v-bind:disabled="!prev_page">Prev</button></li>
+          <li class="page-item"><button v-on:click="nextPage" class="page-link" v-bind:disabled="!next_page">Next</button></li>
         </ul>
       </div>
     </div>
@@ -61,193 +61,191 @@
       <span class="font-weight-semibold">Oops:</span> There are not currently any guest accounts created. Click here to <a href="#" class="alert-link text-primary" data-toggle="modal" data-target="#add_guest">Add a Guest User</a>
     </div>
   </section>
+  <div id="add_guest" class="modal fade" tabindex="-1" style="display: none;" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-grey">
+        <h2 class="modal-title">Add Guest User</h6>
+        <button v-on:click="clearUserForm" type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="">Username</label>
+          <input v-model="userForm.username" type="email" disabled class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="">Email</label>
+          <input v-model="userForm.email" type="email" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="">First Name</label>
+          <input v-model="userForm.first_name" type="text" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="">Last Name</label>
+          <input v-model="userForm.last_name" type="text" class="form-control">
+        </div>
+        <div class="form-group d-none">
+          <label class="">User Type</label>
+          <input v-model="userForm.user_type" type="hidden" class="form-control" value='GST'>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button v-on:click="clearUserForm" type="button" class="btn btn-link" data-dismiss="modal" ref="closemodal">Close</button>
+        <button v-on:click="addUser" v-bind:disabled="!userFormValid" type="button" class="btn bg-primary">Add User</button>
+      </div>
+    </div>
+  </div>
+</div>
   {% endverbatim %}
 </div>
 {% endblock %}
 
 {% block vueapp %}
 <script>
-  list_users = new Vue({
-    el: '#list_users',
-    data: {
-      loaded: false,
-      records: [],
-      search: '',
-      currentPage: 1,
-      pageSize: 50,
-    },
-    watch: {
-      search: function(){
-        this.currentPage = 1
-      }
-    },
-    methods: {
-      nextPage:function() {
-        if((this.currentPage*this.pageSize) < this.filterRecords.length) this.currentPage++;
-        return false;
-      },
-      prevPage:function() {
-        if(this.currentPage > 1) this.currentPage--;
-        return false;
-      },
-      deleteUser: function(user){
-        axios.delete(
-          user.url,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFTOKEN': '{{csrf_token}}'
-            }
+  app = new Vue({
+      el: '#app',
+      data: {
+          loaded: false,
+          total_records: 0,
+          number_pages: null,
+          first_record: 0,
+          last_record: 0,
+          records: [],
+          search: '',
+          page: 1,
+          page_size: 10,
+          next_page: null,
+          prev_page: null,
+          userForm: {
+              username: '',
+              email: '',
+              first_name: '',
+              last_name: '',
+              is_staff: false,
+              is_active: true,
+              user_type: 'GST',
           }
-        ).then(function(response) {
-            this.records.splice(this.records.indexOf(user), 1)
-        }.bind(this))
-      }
+      },
+      watch: {
+          search: _.debounce(function () {
+              if (this.page === 1) {
+                  this.fetchRecords();
+              } else {
+                  this.page = 1
+              }
+          }, 500),
+          page: function () {
+              this.fetchRecords();
+          },
+          'userForm.email': function () {
+              this.userForm.username = this.userForm.email
+          }
+      },
+      methods: {
+          nextPage: function () {
+              if (this.next_page) {
+                  this.page = this.next_page;
+              }
+          },
+          prevPage: function () {
+              if (this.prev_page) {
+                  this.page = this.prev_page;
+              }
+          },
+          fetchRecords: function () {
+              // window.openPageLoad();
+              url = 'http://websites-dev.slcschools.org/api/v1/users/?format=json&type=GST&page=' + this.page;
+              if (this.search) {
+                  url = url + '&search=' + this.search;
+              }
+              console.log(url)
+              axios
+                  .get(url)
+                  .then(
+                      function (response) {
+                          this.records = response.data.results;
+                          this.total_records = response.data.total_records;
+                          this.number_pages = response.data.number_pages;
+                          this.first_record = response.data.first_record;
+                          this.last_record = response.data.last_record;
+                          this.next_page = response.data.next_page;
+                          this.prev_page = response.data.prev_page;
+                          // closePageLoad();
+                          this.loaded = true;
+                      }.bind(this)
+                  );
+          },
+          deleteUser: function (user) {
+              axios.delete(
+                  user.url,
+                  {
+                      headers: {
+                          'Content-Type': 'application/json',
+                          'X-CSRFTOKEN': '{{csrf_token}}'
+                      }
+                  }
+              ).then(function (response) {
+                  this.records.splice(this.records.indexOf(user), 1)
+              }.bind(this))
+          },
+          clearUserForm: function () {
+              this.userForm.username = '';
+              this.userForm.email = '';
+              this.userForm.first_name = '';
+              this.userForm.last_name = '';
+              this.userForm.is_staff = false;
+              this.userForm.is_active = true;
+              this.userForm.user_type = 'GST';
+          },
+          addUser: function () {
+              data = JSON.stringify(this.userForm)
+              axios.post(
+                  'http://websites-dev.slcschools.org/api/v1/users/',
+                  data,
+                  {
+                      headers: {
+                          'Content-Type': 'application/json',
+                          'X-CSRFTOKEN': '{{csrf_token}}'
+                      },
+                  }
+              ).then(
+                  function (response) {
+                      this.records.push(response.data);
+                      this.$refs.closemodal.click();
+                  }.bind(this)
+              )
+          },
     },
     mounted: function(){
-      window.openPageLoad();
-      axios
-        .get('http://websites-dev.slcschools.org/api/v1/users/?format=json&type=GST')
-        .then(
-          function(response){
-            this.records = response.data;
-            closePageLoad();
-            this.loaded = true;
-          }.bind(this)
-        );
+      this.fetchRecords();
     },
     computed: {
-      filterRecords: function(){
-        return this.records.filter(
-          function(record){
-            return [record.first_name, record.last_name, record.email].join(' ').toLowerCase().indexOf(this.search.toLowerCase()) > -1
-          }.bind(this)
-        )
-      },
-      numberOfRecords: function(){
-        return this.filterRecords.length
-      },
-      pagedRecords: function(){
-        return this.filterRecords.slice((this.currentPage * this.pageSize) - (this.pageSize), (this.currentPage * this.pageSize))
-      },
-      recordRangeMin: function(){
-        return (this.currentPage * this.pageSize) - (this.pageSize - 1)
-      },
-      recordRangeMax: function(){
-        return Math.min(this.numberOfRecords, (this.currentPage * this.pageSize))
-      },
-    }
-  })
-</script>
-<script>
-  add_user = new Vue({
-    el: '#add_guest',
-    data: {
-      user_fields:{
-        username: '',
-        email: '',
-        first_name: '',
-        last_name: '',
-        is_staff: false,
-        is_active: true,
-        user_type: 'GST',
-      }
-    },
-    watch: {
-      'user_fields.email': function(){
-        this.user_fields.username = this.user_fields.email
-      }
-    },
-    methods:{
-      clearForm: function(){
-        this.user_fields.username='';
-        this.user_fields.email='';
-        this.user_fields.first_name='';
-        this.user_fields.last_name='';
-        this.user_fields.is_staff=false;
-        this.user_fields.is_active=true;
-        this.user_fields.user_type='GST';
-      },
-      addUser: function(){
-        data = JSON.stringify(this.user_fields)
-        axios.post(
-          'http://websites-dev.slcschools.org/api/v1/users/',
-          data,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFTOKEN': '{{csrf_token}}'
-            },
-          }
-        ).then(
-          function(response){
-            list_users.records.push(response.data);
-            this.$refs.closemodal.click();
-          }.bind(this)
-        )
-      }
-    },
-    computed: {
-      isValid: function(){
-        if( ! this.user_fields.username ){
+        userFormValid: function(){
+        if( ! this.userForm.username ){
           return false
         }
-        if( ! this.user_fields.email ){
+        if( ! this.userForm.email ){
           return false
         }
-        if( ! this.user_fields.first_name ){
+        if( ! this.userForm.first_name ){
           return false
         }
-        if( ! this.user_fields.last_name ){
+        if( ! this.userForm.last_name ){
           return false
         }
-        if( ! this.user_fields.user_type == 'GST' ){
+        if( ! this.userForm.user_type == 'GST' ){
           return false
         }
         return true
       }
-    },
+    }
   })
 </script>
 {% endblock %}
 
 {% block modals %}
-<div id="add_guest" class="modal fade" tabindex="-1" style="display: none;" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-grey">
-        <h2 class="modal-title">Add Guest User</h6>
-        <button v-on:click="clearForm" type="button" class="close" data-dismiss="modal">×</button>
-      </div>
 
-      <div class="modal-body">
-        <div class="form-group">
-          <label class="">Username</label>
-          <input v-model="user_fields.username" type="email" disabled class="form-control">
-        </div>
-        <div class="form-group">
-          <label class="">Email</label>
-          <input v-model="user_fields.email" type="email" class="form-control">
-        </div>
-        <div class="form-group">
-          <label class="">First Name</label>
-          <input v-model="user_fields.first_name" type="text" class="form-control">
-        </div>
-        <div class="form-group">
-          <label class="">Last Name</label>
-          <input v-model="user_fields.last_name" type="text" class="form-control">
-        </div>
-        <div class="form-group d-none">
-          <label class="">User Type</label>
-          <input v-model="user_fields.user_type" type="hidden" class="form-control" value='GST'>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button v-on:click="clearForm" type="button" class="btn btn-link" data-dismiss="modal" ref="closemodal">Close</button>
-        <button v-on:click="addUser" v-bind:disabled="!isValid" type="button" class="btn bg-primary">Add User</button>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}

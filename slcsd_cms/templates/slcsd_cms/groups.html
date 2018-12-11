@@ -5,7 +5,7 @@
 {% block h1 %}<i class="icon-users"></i> Groups{% endblock %}
 
 {% block content %}
-<div id="list_groups" class="card">
+<div id="app" class="card">
   {% verbatim %}
   <section class="card-body">
     <div class="alert alert-info alert-styled-left">
@@ -31,7 +31,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="record in pagedRecords" v-bind:data-user-pk="record.pk">
+            <tr v-for="record in records" v-bind:data-user-pk="record.pk">
               <td style="width: 1px;"><i class="icon-users"></i></td>
               <td>{{ record.title }}</td>
               <td>{{ record.description }}</td>
@@ -46,10 +46,10 @@
         </table>
       </div>
       <div class="d-flex mb-3">
-        <div class="mt-auto ml-auto mr-3">Results: {{ recordRangeMin }}-{{ recordRangeMax }} of {{ numberOfRecords }}</div>
-        <ul v-if="numberOfRecords > 50" class="pagination align-self-center">
-          <li class="page-item"><button v-on:click="prevPage" class="page-link">Prev</button></li>
-          <li class="page-item"><button v-on:click="nextPage" class="page-link">Next</button></li>
+        <div class="mt-auto ml-auto mr-3">Results: {{ first_record }}-{{ last_record }} of {{ total_records }}</div>
+        <ul v-if="total_records > 50" class="pagination align-self-center">
+          <li class="page-item"><button v-on:click="prevPage" class="page-link" v-bind:disabled="!prev_page">Prev</button></li>
+          <li class="page-item"><button v-on:click="nextPage" class="page-link" v-bind:disabled="!next_page">Next</button></li>
         </ul>
       </div>
     </div>
@@ -63,62 +63,72 @@
 
 {% block vueapp %}
 <script>
-  list_groups = new Vue({
-    el: '#list_groups',
+  app = new Vue({
+    el: '#app',
     data: {
       loaded: false,
+      total_records: 0,
+      number_pages: null,
+      first_record: 0,
+      last_record: 0,
       records: [],
       search: '',
-      currentPage: 1,
-      pageSize: 50,
+      page: 1,
+      page_size: 10,
+      next_page: null,
+      prev_page: null,
     },
     watch: {
-      search:function(){
-        this.currentPage = 1;
-      },
+      search: _.debounce(function(){
+        if( this.page === 1 ){
+            this.fetchRecords();
+        }  else {
+            this.page = 1
+        }
+      }, 500),
+      page: function(){
+          this.fetchRecords();
+      }
     },
     methods: {
       nextPage:function() {
-        if((this.currentPage*this.pageSize) < this.filterRecords.length) this.currentPage++;
-        return false;
+        if( this.next_page ) {
+            this.page = this.next_page;
+        }
       },
       prevPage:function() {
-        if(this.currentPage > 1) this.currentPage--;
-        return false;
+          if( this.prev_page ) {
+            this.page = this.prev_page;
+        }
       },
+      fetchRecords:function(){
+        // window.openPageLoad();
+        url = '{% url "slcsd_cms:api:group-list" %}' + '?format=json&page=' + this.page;
+        if(this.search){
+            url = url + '&search=' + this.search;
+        }
+        console.log(url)
+        axios
+          .get(url)
+          .then(
+            function(response){
+              this.records = response.data.results;
+              this.total_records = response.data.total_records;
+              this.number_pages = response.data.number_pages;
+              this.first_record = response.data.first_record;
+              this.last_record = response.data.last_record;
+              this.next_page = response.data.next_page;
+              this.prev_page = response.data.prev_page;
+              // closePageLoad();
+              this.loaded = true;
+            }.bind(this)
+          );
+      }
     },
     mounted: function(){
-      window.openPageLoad();
-      axios
-        .get('{% url "slcsd_cms:api:group-list" %}' + '?format=json')
-        .then(
-          function(response){
-            this.records = response.data;
-            closePageLoad();
-            this.loaded = true;
-          }.bind(this)
-        );
+      this.fetchRecords();
     },
     computed: {
-      filterRecords: function(){
-        return this.records.filter(
-          function(record){
-            return [record.title, record.description].join(' ').toLowerCase().indexOf(this.search.toLowerCase()) > -1
-          }.bind(this)
-        )
-      },
-      numberOfRecords: function(){
-        return this.filterRecords.length
-      },
-      pagedRecords: function(){
-        return this.filterRecords.slice((this.currentPage * this.pageSize) - (this.pageSize), (this.currentPage * this.pageSize))
-      },
-      recordRangeMin: function(){
-        return (this.currentPage * this.pageSize) - (this.pageSize - 1)
-      },
-      recordRangeMax: function(){
-        return Math.min(this.numberOfRecords, (this.currentPage * this.pageSize))
-      },
     }
   })
 </script>
