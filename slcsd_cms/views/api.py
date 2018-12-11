@@ -58,6 +58,9 @@ class UserViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
 class SiteViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('title', 'description', )
+
     def get_serializer_class(self):
         if self.action == 'list':
             return ListSiteSerializer
@@ -115,6 +118,8 @@ class DomainViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 class GroupViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
 
     lookup_field = 'uuid'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('title', 'description',)
 
     def get_serializer_class(self):
         if self.action == 'list':
