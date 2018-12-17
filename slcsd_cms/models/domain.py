@@ -23,9 +23,6 @@ class DomainManager(models.Manager):
         """
         return self.get_queryset().filter(delete_date__isnull=True)
 
-    def delete(self):
-        pass
-
 
 class Domain(BaseModelMixin):
     """
