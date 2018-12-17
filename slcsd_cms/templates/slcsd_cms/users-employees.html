@@ -108,11 +108,10 @@
       },
       fetchRecords:function(){
         // window.openPageLoad();
-        url = 'http://websites-dev.slcschools.org/api/v1/users/?format=json&type=EMP&page=' + this.page;
+        url = '{% url "slcsd_cms:api:user-list" %}?format=json&type=EMP&page=' + this.page;
         if(this.search){
             url = url + '&search=' + this.search;
         }
-        console.log(url)
         axios
           .get(url)
           .then(
