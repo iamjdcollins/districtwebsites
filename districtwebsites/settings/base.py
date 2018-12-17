@@ -86,16 +86,19 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'slcsd_cms.middleware.Statistics',
     'django.middleware.security.SecurityMiddleware',
-    'django.middleware.gzip.GZipMiddleware',
     'silk.middleware.SilkyMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',
+    'django.middleware.http.ConditionalGetMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
     'slcsd_cms.middleware.CurrentSite',
 ]
 
@@ -105,7 +108,6 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
-        # 'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -175,10 +177,12 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+DATA_DIR = '/srv/nginx/websites.slcschools.org'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(DATA_DIR, 'static')
 
 CACHES = {
     'default': {
@@ -186,6 +190,7 @@ CACHES = {
         'LOCATION': 'unix:/var/run/memcached/memcached.sock',
     },
 }
+CACHE_MIDDLEWARE_SECONDS = 0
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS':
@@ -221,7 +226,14 @@ SILKY_MAX_REQUEST_BODY_SIZE = 0
 # If the response body is less than this value save the response body.
 SILKY_MAX_RESPONSE_BODY_SIZE = 0
 # What percentage of requests should be processed by silk?
-SILKY_INTERCEPT_PERCENT = 100
+# Not the statistics middleware I developed does not play nice with Silk
+# The statistics middleware uses threads to reduce the impact of the database
+# writes of requests. For some reason silk thinks it is running in the
+# statistics thread when executed preventing it from working. Other people have
+# reported similar issues with other packages such as debug_toolbar and
+# channels. Leave this value at 0 unless you need it temporarily or a fix to
+# silk is made.
+SILKY_INTERCEPT_PERCENT = 0
 # How many records are kept by silk?
 SILKY_MAX_RECORDED_REQUESTS = 10**4
 # What percentage of records cleaned by garbage collection per run.
